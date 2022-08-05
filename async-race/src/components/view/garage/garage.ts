@@ -1,7 +1,9 @@
 import { DataServer } from "../../../types/interface";
+import { EventListeners } from "../../controller/eventListeners";
 import { Car } from "./car";
 
 export class Garage {
+  protected eventListener: EventListeners;
   private readonly car: Car;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
@@ -30,6 +32,7 @@ export class Garage {
   private readonly btnNext: HTMLButtonElement;
 
   constructor() {
+    this.eventListener = new EventListeners();
     this.car = new Car();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
@@ -61,7 +64,7 @@ export class Garage {
   public createPageGarage(cars: DataServer[]): void {
     this.wrapper.classList.add("wrapper");
     this.titlePage.classList.add("title__page");
-    this.titlePage.innerText = "Garage";
+    this.titlePage.innerText = "Garage(";
     this.totalCars.classList.add("total__cars");
 
     this.btnPages.classList.add("btn__pages");
@@ -74,6 +77,7 @@ export class Garage {
 
     this.createCarControl();
     this.createPaginationGarage();
+    this.car.drawCars(cars);
 
     this.titleRace.classList.add("title__race");
     this.titleRace.innerText = "Page #";
@@ -89,10 +93,12 @@ export class Garage {
       this.btnPages,
       this.carControl,
       this.titleRace,
-      this.car.drawCars(cars),
+      this.car.members,
       this.pagination
     );
     this.body.appendChild(this.wrapper);
+    this.eventListener.listenCarsControl(this.carControl);
+    this.eventListener.listenCar(this.car.members);
   }
 
   private createCarControl(): void {
@@ -168,11 +174,6 @@ export class Garage {
     this.btnNext.innerText = "next";
 
     this.pagination.append(this.btnPrev, this.btnNext);
-  }
-
-  public drawTotalCars(numCars: string): void {
-    const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
-    totalCars.innerText = `(${numCars})`;
   }
 
   public drawNumPage(number: string): void {
