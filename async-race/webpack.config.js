@@ -34,6 +34,10 @@ const baseConfig = {
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: 'asset/resource',
+        },
+        {
+          test: /\.json$/,
+          loader: 'json-loader'
         }
         ],
     },
