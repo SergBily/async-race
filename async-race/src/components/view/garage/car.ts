@@ -1,13 +1,19 @@
+import { MethodEnum } from "../../../types/enum";
 import { DataServer } from "../../../types/interface";
 
 export class Car {
-  public drawCars(cars: DataServer[]): HTMLDivElement {
-    const members: HTMLDivElement = document.createElement("div");
-    members.classList.add("members");
+  public members: HTMLDivElement;
+  public raceContainer: HTMLDivElement;
+
+  constructor() {
+    this.members = document.createElement("div");
+    this.raceContainer = document.createElement("div");
+  }
+  public drawCars(cars: DataServer[]): void {
+    this.members.classList.add("members");
 
     cars.forEach((car) => {
-      const raceContainer: HTMLDivElement = document.createElement("div"),
-        autoControl: HTMLDivElement = document.createElement("div"),
+      const autoControl: HTMLDivElement = document.createElement("div"),
         btnSelect: HTMLButtonElement = document.createElement("button"),
         btnRemove: HTMLButtonElement = document.createElement("button"),
         autoName: HTMLParagraphElement = document.createElement("p"),
@@ -20,8 +26,8 @@ export class Car {
         ),
         carFlag: HTMLImageElement = document.createElement("img");
 
-      raceContainer.classList.add("race__container");
-      raceContainer.setAttribute("id", `${car.id}`);
+      this.raceContainer.classList.add("race__container");
+      this.raceContainer.setAttribute("id", `${car.id}`);
 
       autoControl.classList.add("auto__control");
 
@@ -60,9 +66,36 @@ export class Car {
       autoControl.append(btnSelect, btnRemove, autoName);
       raceControl.append(btnLaunch, btnStop, carImg, carFlag);
 
-      raceContainer.append(autoControl, raceControl);
-      members.append(raceContainer);
+      this.raceContainer.append(autoControl, raceControl);
+      this.members.append(this.raceContainer);
     });
-    return members;
+  }
+
+  public drawNewCar(car: DataServer) {
+    const members = document.querySelector(".members") as HTMLDivElement;
+    this.drawCars([car]);
+    members.appendChild(this.raceContainer);
+  }
+
+  public drawTotalCars(method: string, numCars?: string): void {
+    const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
+
+    switch (method) {
+      case MethodEnum.get:
+        totalCars.innerText = `${numCars})`;
+        break;
+
+      case MethodEnum.post:
+        totalCars.innerText = `${(
+          parseInt(totalCars.innerText) + 1
+        ).toString()})`;
+        break;
+
+      case MethodEnum.delete:
+        totalCars.innerText = `${(
+          parseInt(totalCars.innerText) - 1
+        ).toString()})`;
+        break;
+    }
   }
 }
