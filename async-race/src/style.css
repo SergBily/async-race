@@ -186,8 +186,13 @@ margin-top: 20px;
 .race__control {
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
   gap: 10px;
   border-bottom: 3px dashed rgb(247, 200, 200);
+}
+
+.car__img {
+  margin-left: 50px;
 }
 
 .car__flag{
