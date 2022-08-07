@@ -1,34 +1,36 @@
-import { MethodEnum, UrlPage } from "../../types/enum";
+import { BtnPaginationEnum, MethodEnum, UrlPage } from "../../types/enum";
 import { DataServer } from "../../types/interface";
 import { Loader } from "./loader";
-import { Car } from "../view/garage/car";
-import { CountCars } from "../../types/types";
+import { LocalStorage } from "../localStorage/localStorage";
 
 export class Appcontroller extends Loader {
-  private car: Car;
-  protected selectCar: string;
-  private callbackCountCars: CountCars;
+  public selectCar: string;
+  protected localPage: string | null;
+  protected locStorage: LocalStorage;
+  private currentPage: number;
 
   constructor() {
     super();
-    this.car = new Car();
+
+    this.locStorage = new LocalStorage();
     this.selectCar = "";
-    this.callbackCountCars = (header: string, method?: string) =>
-      this.car.drawTotalCars(header, method);
+    this.currentPage = 1;
+    this.localPage = this.locStorage.getStorage("page");
+
+    if (this.localPage) this.currentPage = +this.localPage;
   }
-  public getGaragePage(callback: (cars: DataServer[]) => void): void {
-    super.getResponse<DataServer[]>(
+
+  public getGaragePage(): Promise<void | Response> {
+    return super.load(
       {
         method: MethodEnum.get,
       },
       UrlPage.garage,
-      callback,
-      this.callbackCountCars,
-      ["_page=3", "_limit=7"]
+      [`_page=${this.currentPage}`, "_limit=7"]
     );
   }
 
-  protected createNewCar(): void {
+  public createNewCar(): Promise<void | Response> {
     const nameNewCar = document.querySelector(
         ".car__input"
       ) as HTMLInputElement,
@@ -39,7 +41,7 @@ export class Appcontroller extends Loader {
       color: colorNewCar.value,
     };
 
-    super.getResponse<DataServer>(
+    return super.load(
       {
         method: MethodEnum.post,
         headers: {
@@ -47,21 +49,78 @@ export class Appcontroller extends Loader {
         },
         body: JSON.stringify(newCar),
       },
-      UrlPage.garage,
-      (data: DataServer) => this.car.drawNewCar(data),
-      this.callbackCountCars
+      UrlPage.garage
     );
   }
 
-  protected removeSelectCar(): void {
-    super.getResponse<string>(
+  public removeSelectCar(): Promise<void | Response> {
+    return super.load(
       {
         method: MethodEnum.delete,
       },
       UrlPage.garage,
-      (id: string) => this.car.removeSelectCar(id),
-      this.callbackCountCars,
       [this.selectCar]
+    );
+  }
+
+  public updateSelectCar(): Promise<void | Response> {
+    const nameSelectCar = document.querySelector(
+        ".input__update"
+      ) as HTMLInputElement,
+      colorSelectCar = document.querySelector(
+        ".input__color-update"
+      ) as HTMLInputElement;
+
+    const updateCar: DataServer = {
+      name: nameSelectCar.value,
+      color: colorSelectCar.value,
+    };
+
+    return super.load(
+      {
+        method: MethodEnum.put,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateCar),
+      },
+      UrlPage.garage,
+      [this.selectCar]
+    );
+  }
+
+  public paginationPage(btn: string): Promise<void | Response> {
+    switch (btn) {
+      case BtnPaginationEnum.next:
+        this.currentPage += 1;
+        this.locStorage.setStorage("page", this.currentPage.toString());
+        break;
+
+      case BtnPaginationEnum.prev:
+        this.currentPage -= 1;
+        this.locStorage.setStorage("page", this.currentPage.toString());
+        break;
+    }
+    return this.getGaragePage();
+  }
+
+  public launchCar(): Promise<void | Response> {
+    return super.load(
+      {
+        method: MethodEnum.patch,
+      },
+      UrlPage.engine,
+      [`id=${this.selectCar}`, "status=started"]
+    );
+  }
+
+  public stopCar(): Promise<void | Response> {
+    return super.load(
+      {
+        method: MethodEnum.patch,
+      },
+      UrlPage.engine,
+      [`id=${this.selectCar}`, "status=stopped"]
     );
   }
 }
