@@ -5,13 +5,20 @@ import {
   StatusCarEnum,
 } from "../../../types/enum";
 import { DataServer } from "../../../types/interface";
-import { CarOrCars, EngineData } from "../../../types/types";
+import {
+  CarOrCars,
+  DataServerT,
+  EngineData,
+  ResponseT,
+} from "../../../types/types";
 import { Appcontroller } from "../../controller/controller";
 import { Animation } from "./animation";
+import { CreateRequest } from "./requestHandler";
 
 export class Garage {
   private controller: Appcontroller;
   private animationCars: Animation;
+  private request: CreateRequest;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -43,6 +50,7 @@ export class Garage {
   constructor() {
     this.controller = new Appcontroller();
     this.animationCars = new Animation();
+    this.request = new CreateRequest();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -181,7 +189,8 @@ export class Garage {
     this.carControl.append(
       this.createCarNew,
       this.carUpdate,
-      this.garageControl
+      this.garageControl,
+      this.winCar()
     );
   }
 
@@ -258,7 +267,13 @@ export class Garage {
     if (!newCar) this.addListenerCars();
   }
 
-  private addListenerCars(oneCar?: boolean) {
+  private winCar(): HTMLDivElement {
+    const winTable: HTMLDivElement = document.createElement("p");
+    winTable.classList.add("message-win");
+    return winTable;
+  }
+
+  private addListenerCars(oneCar?: boolean): void {
     let cars: CarOrCars;
 
     oneCar
@@ -277,7 +292,7 @@ export class Garage {
     );
   }
 
-  public drawNewCar(car: DataServer) {
+  public drawNewCar(car: DataServer): void {
     const members = document.querySelector(".members") as HTMLDivElement;
     const maxCarsOnPage = 7;
     if (members.children.length === maxCarsOnPage) return;
@@ -393,33 +408,42 @@ export class Garage {
     this.drawNumPage(numPage);
   }
 
-  private toggleStopBtn(): void {
-    const selectCar = document.getElementById(
-        this.controller.selectCar
-      ) as HTMLDivElement,
-      btn = selectCar.querySelector(".btn__stop") as HTMLButtonElement;
+  private toggleStopBtn(cars?: string[]): void {
+    cars
+      ? cars.forEach((car) => toggle(car))
+      : toggle(this.controller.selectCar);
 
-    btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
-    btn.classList.toggle("disable-start-stop");
+    function toggle(car: string) {
+      const selectCar = document.getElementById(car) as HTMLDivElement,
+        btn = selectCar.querySelector(".btn__stop") as HTMLButtonElement;
+
+      btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
+      btn.classList.toggle("disable-start-stop");
+    }
   }
 
-  private toggleLaunchBtn(): void {
-    const selectCar = document.getElementById(
-        this.controller.selectCar
-      ) as HTMLDivElement,
-      btn = selectCar.querySelector(".btn__launch") as HTMLButtonElement;
+  private toggleLaunchBtn(cars?: string[]): void {
+    cars
+      ? cars.forEach((car) => toggle(car))
+      : toggle(this.controller.selectCar);
 
-    btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
-    btn.classList.toggle("disable-start-stop");
+    function toggle(car: string) {
+      const selectCar = document.getElementById(car) as HTMLDivElement,
+        btn = selectCar.querySelector(".btn__launch") as HTMLButtonElement;
+
+      btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
+      btn.classList.toggle("disable-start-stop");
+    }
   }
 
   public async controlGarage(btn: string): Promise<void> {
-    let response: Response;
-    let data: DataServer;
+    let response: ResponseT;
+    let data: DataServerT;
+    let cars: string[];
     switch (btn) {
       case BtnControlGarageEnum.create:
         response = (await this.controller.createNewCar()) as Response;
-        data = await response.json();
+        data = (await response.json()) as DataServer;
         this.drawNewCar(data);
         this.drawTotalCars("POST");
         this.cleanInputField(btn);
@@ -427,13 +451,24 @@ export class Garage {
 
       case BtnControlGarageEnum.update:
         response = (await this.controller.updateSelectCar()) as Response;
-        data = await response.json();
+        data = (await response.json()) as DataServer;
         this.drawUpdateCar(data, this.controller.selectCar);
         this.cleanInputField(btn);
         this.updateEnable();
         break;
 
       case BtnControlGarageEnum.racce:
+        response = (await Promise.all(
+          this.request.createRequstRace(this.controller)
+        )) as Response[];
+        data = await Promise.all(response.map((req) => req.json()));
+        cars = this.request.getmembersOfPage();
+        this.animationCars.animationCar(data, cars);
+        this.toggleStopBtn(cars);
+        this.toggleLaunchBtn(cars);
+
+        console.log(data, cars);
+
         break;
 
       case BtnControlGarageEnum.reset:
@@ -461,7 +496,6 @@ export class Garage {
         response = (await this.controller.controlEngineCar(
           StatusCarEnum.start
         )) as Response;
-        console.log(response.status);
 
         while (response.status === 429) {
           response = (await this.controller.controlEngineCar(
@@ -469,7 +503,7 @@ export class Garage {
           )) as Response;
         }
         data = await response.json();
-        this.animationCars.animationCar(data, this.controller.selectCar);
+        this.animationCars.animationCar([data], [this.controller.selectCar]);
 
         response = (await this.controller.controlEngineCar(
           StatusCarEnum.drive
