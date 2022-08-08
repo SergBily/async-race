@@ -2,11 +2,12 @@ import { Appcontroller } from "../../controller/controller";
 
 export class CreateRequest {
   public createRequstRace(
-    controller: Appcontroller
+    controller: Appcontroller,
+    status: string
   ): Promise<void | Response>[] {
     const carsOnPage = this.getmembersOfPage();
     const promiseCars = carsOnPage.map((idCar) =>
-      controller.controlEngineAllCar(idCar)
+      controller.controlEngineCar(status, idCar)
     ) as Promise<Response>[];
 
     return promiseCars;

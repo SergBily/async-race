@@ -408,31 +408,33 @@ export class Garage {
     this.drawNumPage(numPage);
   }
 
-  private toggleStopBtn(cars?: string[]): void {
-    cars
-      ? cars.forEach((car) => toggle(car))
-      : toggle(this.controller.selectCar);
+  private disableBtn(btn: string, cars?: string[]): void {
+    if (cars) {
+      cars.forEach((car) => toggle(car, btn));
+    } else {
+      toggle(this.controller.selectCar, btn);
+    }
 
-    function toggle(car: string) {
+    function toggle(car: string, btnName: string) {
       const selectCar = document.getElementById(car) as HTMLDivElement,
-        btn = selectCar.querySelector(".btn__stop") as HTMLButtonElement;
+        btn = selectCar.querySelector(`.${btnName}`) as HTMLButtonElement;
 
       btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
-      btn.classList.toggle("disable-start-stop");
+      btn.classList.add("disable-start-stop");
     }
   }
 
-  private toggleLaunchBtn(cars?: string[]): void {
+  private enableBtn(btn: string, cars?: string[]): void {
     cars
-      ? cars.forEach((car) => toggle(car))
-      : toggle(this.controller.selectCar);
+      ? cars.forEach((car) => toggle(car, btn))
+      : toggle(this.controller.selectCar, btn);
 
-    function toggle(car: string) {
+    function toggle(car: string, btnName: string) {
       const selectCar = document.getElementById(car) as HTMLDivElement,
-        btn = selectCar.querySelector(".btn__launch") as HTMLButtonElement;
+        btn = selectCar.querySelector(`.${btnName}`) as HTMLButtonElement;
 
       btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
-      btn.classList.toggle("disable-start-stop");
+      btn.classList.remove("disable-start-stop");
     }
   }
 
@@ -459,19 +461,26 @@ export class Garage {
 
       case BtnControlGarageEnum.racce:
         response = (await Promise.all(
-          this.request.createRequstRace(this.controller)
+          this.request.createRequstRace(this.controller, StatusCarEnum.start)
         )) as Response[];
         data = await Promise.all(response.map((req) => req.json()));
         cars = this.request.getmembersOfPage();
         this.animationCars.animationCar(data, cars);
-        this.toggleStopBtn(cars);
-        this.toggleLaunchBtn(cars);
-
-        console.log(data, cars);
-
+        this.disableBtn("btn__launch", cars);
+        this.enableBtn("btn__stop", cars);
         break;
 
       case BtnControlGarageEnum.reset:
+        response = (await Promise.all(
+          this.request.createRequstRace(this.controller, StatusCarEnum.stop)
+        )) as Response[];
+        cars = this.request.getmembersOfPage();
+        this.animationCars.stopAnimationCar(cars);
+        document
+          .querySelector(".message-win")
+          ?.classList.remove("message-win-open");
+        this.disableBtn("btn__stop", cars);
+        this.enableBtn("btn__launch", cars);
         break;
 
       case BtnControlGarageEnum.generate:
@@ -491,8 +500,8 @@ export class Garage {
         break;
 
       case ControlCarEnum.launch:
-        this.toggleStopBtn();
-        this.toggleLaunchBtn();
+        this.disableBtn("btn__launch");
+        this.enableBtn("btn__stop");
         response = (await this.controller.controlEngineCar(
           StatusCarEnum.start
         )) as Response;
@@ -518,13 +527,16 @@ export class Garage {
         break;
 
       case ControlCarEnum.stop:
-        this.toggleLaunchBtn();
-        this.toggleStopBtn();
+        this.disableBtn("btn__stop");
+        this.enableBtn("btn__launch");
         response = (await this.controller.controlEngineCar(
           StatusCarEnum.stop
         )) as Response;
-        data = await response.json();
-        this.animationCars.stopAnimationCar(this.controller.selectCar);
+
+        this.animationCars.stopAnimationCar([this.controller.selectCar]);
+        document
+          .querySelector(".message-win")
+          ?.classList.remove("message-win-open");
         break;
 
       case ControlCarEnum.select:

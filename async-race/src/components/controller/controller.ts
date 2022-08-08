@@ -104,23 +104,20 @@ export class Appcontroller extends Loader {
     return this.getGaragePage();
   }
 
-  public controlEngineCar(status: string): Promise<void | Response> {
-    return super.load(
-      {
-        method: MethodEnum.patch,
-      },
-      UrlPage.engine,
-      [`id=${this.selectCar}`, `status=${status}`]
-    );
-  }
+  public controlEngineCar(
+    status: string,
+    id?: string
+  ): Promise<void | Response> {
+    let car: string;
 
-  public controlEngineAllCar(id: string): Promise<void | Response> {
+    id ? (car = id) : (car = this.selectCar);
+
     return super.load(
       {
         method: MethodEnum.patch,
       },
       UrlPage.engine,
-      [`id=${id}`, `status=started`]
+      [`id=${car}`, `status=${status}`]
     );
   }
 }

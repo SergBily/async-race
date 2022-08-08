@@ -45,12 +45,14 @@ export class Animation {
     });
   }
 
-  public stopAnimationCar(selectCar: string): void {
-    const carContainer = document.getElementById(selectCar) as HTMLDivElement,
-      car = carContainer.querySelector(".car__img") as SVGSVGElement,
-      startPosition = "190px";
+  public stopAnimationCar(cars: string[]): void {
+    cars.forEach((car) => {
+      const carContainer = document.getElementById(car) as HTMLDivElement,
+        carImg = carContainer.querySelector(".car__img") as SVGSVGElement,
+        startPosition = "190px";
 
-    car.style.marginLeft = startPosition;
+      carImg.style.marginLeft = startPosition;
+    });
   }
 
   public engineBreak(selectCar: string): void {
