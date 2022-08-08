@@ -11,7 +11,3 @@ export interface DataServer {
   color: string;
   id?: number;
 }
-
-// export interface NewCar {
-//   name:
-// }
