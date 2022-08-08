@@ -4,7 +4,7 @@ export class Loader {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://127.0.0.1:3000";
+    this.baseUrl = "http://localhost:3000";
   }
 
   private errorHandler(res: Response): Response {
