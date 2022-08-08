@@ -2,13 +2,16 @@ import {
   BtnControlGarageEnum,
   ControlCarEnum,
   MethodEnum,
+  StatusCarEnum,
 } from "../../../types/enum";
 import { DataServer } from "../../../types/interface";
 import { CarOrCars, EngineData } from "../../../types/types";
 import { Appcontroller } from "../../controller/controller";
+import { Animation } from "./animation";
 
 export class Garage {
   private controller: Appcontroller;
+  private animationCars: Animation;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -39,6 +42,7 @@ export class Garage {
 
   constructor() {
     this.controller = new Appcontroller();
+    this.animationCars = new Animation();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -194,6 +198,7 @@ export class Garage {
         autoName: HTMLParagraphElement = document.createElement("p"),
         btnLaunch: HTMLButtonElement = document.createElement("button"),
         btnStop: HTMLButtonElement = document.createElement("button"),
+        containerImg: HTMLDivElement = document.createElement("div"),
         carImg: SVGSVGElement = document.createElementNS(
           "http://www.w3.org/2000/svg",
           "svg"
@@ -222,10 +227,12 @@ export class Garage {
       btnLaunch.setAttribute("data-name", "launch");
       btnLaunch.textContent = "Launch";
 
-      btnStop.classList.add("btn", "btn__stop");
+      btnStop.classList.add("btn", "btn__stop", "disable-start-stop");
       btnStop.setAttribute("data-name", "stop");
       btnStop.textContent = "Stop";
+      btnStop.disabled = true;
 
+      containerImg.classList.add("container__img");
       carImg.classList.add("car__img");
       carImg.style.fill = car.color;
       carImg.setAttribute("width", "80");
@@ -242,9 +249,9 @@ export class Garage {
       carFlag.alt = "flag";
 
       autoControl.append(btnSelect, btnRemove, autoName);
-      raceControl.append(btnLaunch, btnStop, carImg, carFlag);
-
-      raceContainer.append(autoControl, raceControl);
+      raceControl.append(btnLaunch, btnStop, carFlag);
+      containerImg.appendChild(carImg);
+      raceContainer.append(autoControl, raceControl, containerImg);
       this.newCar = raceContainer;
       this.members.append(raceContainer);
     });
@@ -316,6 +323,7 @@ export class Garage {
 
     this.drawCars([car], true);
     target.replaceWith(this.newCar);
+    this.addListenerCars(true);
   }
 
   private removeMembers(): void {
@@ -385,6 +393,26 @@ export class Garage {
     this.drawNumPage(numPage);
   }
 
+  private toggleStopBtn(): void {
+    const selectCar = document.getElementById(
+        this.controller.selectCar
+      ) as HTMLDivElement,
+      btn = selectCar.querySelector(".btn__stop") as HTMLButtonElement;
+
+    btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
+    btn.classList.toggle("disable-start-stop");
+  }
+
+  private toggleLaunchBtn(): void {
+    const selectCar = document.getElementById(
+        this.controller.selectCar
+      ) as HTMLDivElement,
+      btn = selectCar.querySelector(".btn__launch") as HTMLButtonElement;
+
+    btn.disabled ? (btn.disabled = false) : (btn.disabled = true);
+    btn.classList.toggle("disable-start-stop");
+  }
+
   public async controlGarage(btn: string): Promise<void> {
     let response: Response;
     let data: DataServer;
@@ -428,13 +456,41 @@ export class Garage {
         break;
 
       case ControlCarEnum.launch:
-        response = (await this.controller.launchCar()) as Response;
+        this.toggleStopBtn();
+        this.toggleLaunchBtn();
+        response = (await this.controller.controlEngineCar(
+          StatusCarEnum.start
+        )) as Response;
+        console.log(response.status);
+
+        while (response.status === 429) {
+          response = (await this.controller.controlEngineCar(
+            StatusCarEnum.start
+          )) as Response;
+        }
         data = await response.json();
+        this.animationCars.animationCar(data, this.controller.selectCar);
+
+        response = (await this.controller.controlEngineCar(
+          StatusCarEnum.drive
+        )) as Response;
+        if (response.status === 500) {
+          const carBreak = (response.url.match(
+            /id=\d*/
+          ) as RegExpMatchArray)[0].split("=")[1];
+          this.animationCars.engineBreak(carBreak);
+        }
+
         break;
 
       case ControlCarEnum.stop:
-        response = (await this.controller.stopCar()) as Response;
+        this.toggleLaunchBtn();
+        this.toggleStopBtn();
+        response = (await this.controller.controlEngineCar(
+          StatusCarEnum.stop
+        )) as Response;
         data = await response.json();
+        this.animationCars.stopAnimationCar(this.controller.selectCar);
         break;
 
       case ControlCarEnum.select:

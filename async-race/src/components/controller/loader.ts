@@ -8,8 +8,14 @@ export class Loader {
   }
 
   private errorHandler(res: Response): Response {
-    if (!res.ok || res.status !== 304) throw Error(res.statusText);
-    console.log(`Sorry, but there is ${res.status} error: ${res.statusText}`);
+    // console.log(res);
+
+    // if (!res.ok) {
+    //   console.log(`Sorry, but there is ${res.status} error: ${res.statusText}`);
+    //   throw Error(res.statusText);
+    // }
+    // console.log(res);
+
     return res;
   }
 
@@ -38,7 +44,7 @@ export class Loader {
         this.makeUrl(endpoint, queryParams),
         options
       );
-
+      const handlerResponse = this.errorHandler(response);
       return response;
     } catch (err: unknown) {
       console.error(err);
