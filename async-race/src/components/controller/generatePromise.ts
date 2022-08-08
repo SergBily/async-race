@@ -1,7 +1,7 @@
-import { Appcontroller } from "../../controller/controller";
+import { Appcontroller } from "./controller";
 
-export class CreateRequest {
-  public createRequstRace(
+export class GeneratePromise {
+  public generatePromiseRace(
     controller: Appcontroller,
     status: string
   ): Promise<void | Response>[] {

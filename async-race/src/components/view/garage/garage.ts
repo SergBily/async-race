@@ -13,12 +13,12 @@ import {
 } from "../../../types/types";
 import { Appcontroller } from "../../controller/controller";
 import { Animation } from "./animation";
-import { CreateRequest } from "./requestHandler";
+import { GeneratePromise } from "../../controller/generatePromise";
 
 export class Garage {
   private controller: Appcontroller;
   private animationCars: Animation;
-  private request: CreateRequest;
+  private request: GeneratePromise;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -50,7 +50,7 @@ export class Garage {
   constructor() {
     this.controller = new Appcontroller();
     this.animationCars = new Animation();
-    this.request = new CreateRequest();
+    this.request = new GeneratePromise();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -461,7 +461,7 @@ export class Garage {
 
       case BtnControlGarageEnum.racce:
         response = (await Promise.all(
-          this.request.createRequstRace(this.controller, StatusCarEnum.start)
+          this.request.generatePromiseRace(this.controller, StatusCarEnum.start)
         )) as Response[];
         data = await Promise.all(response.map((req) => req.json()));
         cars = this.request.getmembersOfPage();
@@ -472,7 +472,7 @@ export class Garage {
 
       case BtnControlGarageEnum.reset:
         response = (await Promise.all(
-          this.request.createRequstRace(this.controller, StatusCarEnum.stop)
+          this.request.generatePromiseRace(this.controller, StatusCarEnum.stop)
         )) as Response[];
         cars = this.request.getmembersOfPage();
         this.animationCars.stopAnimationCar(cars);
