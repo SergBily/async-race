@@ -30,16 +30,21 @@ export class Appcontroller extends Loader {
     );
   }
 
-  public createNewCar(): Promise<void | Response> {
-    const nameNewCar = document.querySelector(
-        ".car__input"
-      ) as HTMLInputElement,
-      colorNewCar = document.querySelector(".car__color") as HTMLInputElement;
+  public createNewCar(car?: DataServer): Promise<void | Response> {
+    let newCar: DataServer;
+    if (car) {
+      newCar = car;
+    } else {
+      const nameNewCar = document.querySelector(
+          ".car__input"
+        ) as HTMLInputElement,
+        colorNewCar = document.querySelector(".car__color") as HTMLInputElement;
 
-    const newCar: DataServer = {
-      name: nameNewCar.value,
-      color: colorNewCar.value,
-    };
+      newCar = {
+        name: nameNewCar.value,
+        color: colorNewCar.value,
+      };
+    }
 
     return super.load(
       {

@@ -1,3 +1,5 @@
+import { DataServer } from "../../types/interface";
+
 export class GenerateCars {
   private brand: string[];
   private model: string[];
@@ -40,5 +42,26 @@ export class GenerateCars {
       "#FFFF00",
       "#2F4F4F",
     ];
+  }
+
+  public generate(): DataServer[] {
+    const newRandomCars: DataServer[] = [],
+      limitCars = 100;
+
+    while (newRandomCars.length < limitCars) {
+      const brand = this.brand[this.randomNum()],
+        model = this.model[this.randomNum()],
+        color = this.color[this.randomNum()],
+        car = {
+          name: `${brand} ${model}`,
+          color,
+        };
+      newRandomCars.push(car);
+    }
+    return newRandomCars;
+  }
+
+  private randomNum(): number {
+    return Math.trunc(Math.random() * 10);
   }
 }

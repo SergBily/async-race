@@ -1,3 +1,4 @@
+import { DataServer } from "../../types/interface";
 import { Appcontroller } from "./controller";
 
 export class GeneratePromise {
@@ -21,5 +22,12 @@ export class GeneratePromise {
       carsOnPage: string[] = Array.from(cars).map((car) => car.id);
 
     return carsOnPage;
+  }
+
+  public generatePromiseCars(
+    controller: Appcontroller,
+    cars: DataServer[]
+  ): Promise<void | Response>[] {
+    return cars.map((car) => controller.createNewCar(car));
   }
 }

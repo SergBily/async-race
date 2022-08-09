@@ -14,11 +14,13 @@ import {
 import { Appcontroller } from "../../controller/controller";
 import { Animation } from "./animation";
 import { GeneratePromise } from "../../controller/generatePromise";
+import { GenerateCars } from "../../controller/generateCars";
 
 export class Garage {
   private controller: Appcontroller;
   private animationCars: Animation;
   private request: GeneratePromise;
+  private generateCars: GenerateCars;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -51,6 +53,7 @@ export class Garage {
     this.controller = new Appcontroller();
     this.animationCars = new Animation();
     this.request = new GeneratePromise();
+    this.generateCars = new GenerateCars();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -302,8 +305,15 @@ export class Garage {
     this.addListenerCars(true);
   }
 
-  public drawTotalCars(method: string, numCars?: string): void {
+  public drawTotalCars(
+    method: string,
+    numCars?: string,
+    random?: boolean
+  ): void {
+    console.log(random);
+
     const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
+    let chooseNum: number;
 
     switch (method) {
       case MethodEnum.get:
@@ -311,8 +321,9 @@ export class Garage {
         break;
 
       case MethodEnum.post:
+        random ? (chooseNum = 100) : (chooseNum = 1);
         totalCars.innerText = `${(
-          parseInt(totalCars.innerText) + 1
+          parseInt(totalCars.innerText) + chooseNum
         ).toString()})`;
         break;
 
@@ -484,6 +495,14 @@ export class Garage {
         break;
 
       case BtnControlGarageEnum.generate:
+        response = (await Promise.all(
+          this.request.generatePromiseCars(
+            this.controller,
+            this.generateCars.generate()
+          )
+        )) as Response[];
+        this.drawTotalCars("POST", "", true);
+
         break;
     }
   }
