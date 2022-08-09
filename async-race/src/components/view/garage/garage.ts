@@ -48,6 +48,7 @@ export class Garage {
   private readonly btnNext: HTMLButtonElement;
   private members: HTMLDivElement;
   private newCar: HTMLDivElement;
+  private curPage: number;
 
   constructor() {
     this.controller = new Appcontroller();
@@ -81,6 +82,7 @@ export class Garage {
     this.btnNext = document.createElement("button");
     this.members = document.createElement("div");
     this.newCar = document.createElement("div");
+    this.curPage = 1;
   }
 
   public createPageGarage(): void {
@@ -310,8 +312,6 @@ export class Garage {
     numCars?: string,
     random?: boolean
   ): void {
-    console.log(random);
-
     const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
     let chooseNum: number;
 
@@ -333,6 +333,9 @@ export class Garage {
         ).toString()})`;
         break;
     }
+    const allCar = parseInt(totalCars.innerText);
+
+    this.controlPaginationBtn(allCar);
   }
 
   public removeSelectCar(id: string): void {
@@ -367,17 +370,23 @@ export class Garage {
     this.btnPrev.classList.add("btn", "pagination__prev");
     this.btnPrev.setAttribute("data-name", "prev");
     this.btnPrev.innerText = "previous";
+    this.btnPrev.disabled = true;
 
     this.btnNext.classList.add("btn", "pagination__next");
     this.btnNext.setAttribute("data-name", "next");
     this.btnNext.innerText = "next";
+    this.btnNext.disabled = true;
 
     this.pagination.append(this.btnPrev, this.btnNext);
   }
 
   public drawNumPage(number: string): void {
-    const numPage = document.querySelector(".title__num") as HTMLSpanElement;
+    const numPage = document.querySelector(".title__num") as HTMLSpanElement,
+      totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
     numPage.innerText = number;
+    this.curPage = +number;
+    const allCar = parseInt(totalCars.innerText);
+    this.controlPaginationBtn(allCar);
   }
 
   private addListeners(): void {
@@ -413,10 +422,37 @@ export class Garage {
   public async switchOtherPage(btn: string): Promise<void> {
     const response = (await this.controller.paginationPage(btn)) as Response;
     const data: DataServer[] = await response.json();
-    const numPage: string = response.url.split("=")[1][0];
+    const numPage = (response.url.match(
+      /page=\d*/
+    ) as RegExpMatchArray)[0].split("=")[1];
 
     this.drawCars(data);
     this.drawNumPage(numPage);
+  }
+
+  private controlPaginationBtn(allCar: number): void {
+    const prev = document.querySelector(
+        ".pagination__prev"
+      ) as HTMLButtonElement,
+      next = document.querySelector(".pagination__next") as HTMLButtonElement,
+      limitCar = 7,
+      allPage = Math.ceil(allCar / limitCar);
+
+    if (this.curPage === allPage) {
+      next.disabled = true;
+      next.classList.remove("pagination__activ");
+    } else if (this.curPage < allPage) {
+      next.disabled = false;
+      next.classList.add("pagination__activ");
+    }
+
+    if (this.curPage === 1) {
+      prev.disabled = true;
+      prev.classList.remove("pagination__activ");
+    } else {
+      prev.disabled = false;
+      prev.classList.add("pagination__activ");
+    }
   }
 
   private disableBtn(btn: string, cars?: string[]): void {

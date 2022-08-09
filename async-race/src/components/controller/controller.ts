@@ -16,7 +16,6 @@ export class Appcontroller extends Loader {
     this.selectCar = "";
     this.currentPage = 1;
     this.localPage = this.locStorage.getStorage("page");
-
     if (this.localPage) this.currentPage = +this.localPage;
   }
 

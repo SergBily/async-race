@@ -74,9 +74,7 @@
 .btn__winners:active,
 .btn__car:active,
 .control__race:active,
-.control__reset:active,
-.pagination__prev:active,
-.pagination__next:active{
+.control__reset:active {
   transform: translate(5px, 5px);
   -webkit-transform: translate(5px, 5px);
   -moz-transform: translate(5px, 5px);
@@ -146,18 +144,27 @@
 }
 
 .control__race,
-.control__reset,
-.pagination__prev,
-.pagination__next {
+.control__reset {
   background: linear-gradient(45deg, rgb(255, 0, 0), rgba(0, 0, 255, 0.7) 50%, rgb(255, 0, 0));
   color: rgb(192, 192, 192);
   letter-spacing: 1px;
 }
 
+.pagination__prev,
+.pagination__next  {
+  background-color: silver;
+  color: black;
+}
+
+.pagination__activ {
+  background: linear-gradient(45deg, rgb(255, 0, 0), rgba(0, 0, 255, 0.7) 50%, rgb(255, 0, 0));
+  color: rgb(192, 192, 192);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
 .control__race:hover,
-.control__reset:hover,
-.pagination__prev:hover,
-.pagination__next:hover {
+.control__reset:hover {
   box-shadow: 0 0 20px rgb(255, 0, 0);
   border-left: 2px solid rgb(0, 0, 255);
   border-right: 2px solid rgb(0, 0, 255);

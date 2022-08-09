@@ -9,7 +9,7 @@ export class Animation {
 
   public animationCar(data: EngineData[], selectCar: string[]): void {
     let carMaxSpeed = 10;
-    let numCar: string;
+    let numCar = "";
 
     selectCar.forEach((car, index) => {
       const carContainer = document.getElementById(car) as HTMLDivElement,
