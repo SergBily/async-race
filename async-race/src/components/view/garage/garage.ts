@@ -487,9 +487,6 @@ export class Garage {
         )) as Response[];
         cars = this.request.getmembersOfPage();
         this.animationCars.stopAnimationCar(cars);
-        document
-          .querySelector(".message-win")
-          ?.classList.remove("message-win-open");
         this.disableBtn("btn__stop", cars);
         this.enableBtn("btn__launch", cars);
         break;
@@ -551,11 +548,7 @@ export class Garage {
         response = (await this.controller.controlEngineCar(
           StatusCarEnum.stop
         )) as Response;
-
         this.animationCars.stopAnimationCar([this.controller.selectCar]);
-        document
-          .querySelector(".message-win")
-          ?.classList.remove("message-win-open");
         break;
 
       case ControlCarEnum.select:

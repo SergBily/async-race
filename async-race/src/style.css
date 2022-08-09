@@ -54,7 +54,6 @@
   -ms-border-radius: 10px;
   -o-border-radius: 10px;
   font-family: 'Mouse Memoirs', sans-serif;
-  cursor: pointer;
   text-align: center;
 }
 
@@ -71,7 +70,13 @@
   letter-spacing: 1px;
 }
 
-.btn:active {
+.btn__garage:active,
+.btn__winners:active,
+.btn__car:active,
+.control__race:active,
+.control__reset:active,
+.pagination__prev:active,
+.pagination__next:active{
   transform: translate(5px, 5px);
   -webkit-transform: translate(5px, 5px);
   -moz-transform: translate(5px, 5px);
@@ -156,6 +161,7 @@
   box-shadow: 0 0 20px rgb(255, 0, 0);
   border-left: 2px solid rgb(0, 0, 255);
   border-right: 2px solid rgb(0, 0, 255);
+  cursor: pointer;
 }
 
 ::placeholder {
@@ -228,19 +234,14 @@
   margin-top: 10px;
   background-color: rgba(0, 0, 255, 0.4);
   color: rgb(192, 192, 192);
-}
-
-.btn__launch:hover,
-.btn__stop:hover {
-  border-left: 3px solid rgb(255, 0, 0);
-  border-right: 3px solid rgb(255, 0, 0);
-  box-shadow: 0 0 5px rgb(255, 0, 0);
+  cursor: pointer;
 }
 
 .btn__select,
 .btn__remove {
   width: 100px;
   height: 30px;
+  cursor: pointer;
 }
 
 .car__img {
@@ -263,6 +264,7 @@
 .disable-start-stop {
   background-color: silver;
   color: black;
+  cursor: default;
 }
 
 .message-win {

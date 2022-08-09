@@ -8,20 +8,27 @@ export class Animation {
   }
 
   public animationCar(data: EngineData[], selectCar: string[]): void {
+    let carMaxSpeed = 10;
+    let numCar: string;
+
     selectCar.forEach((car, index) => {
       const carContainer = document.getElementById(car) as HTMLDivElement,
-        carName = carContainer.querySelector(
-          ".auto__name"
-        ) as HTMLParagraphElement,
         carImg = carContainer.querySelector(".car__img") as SVGSVGElement,
         widthAllPath = carContainer.querySelector(
           ".container__img"
         ) as HTMLDivElement,
-        win = document.querySelector(".message-win") as HTMLParagraphElement,
         startPosition = 190,
         fullTime: number = data[index].distance / data[index].velocity,
         allPath: number = widthAllPath.offsetWidth - 95,
-        tStart: number = performance.now();
+        carSpeed = +(fullTime / 1000).toFixed(2);
+      console.log(carSpeed);
+
+      if (carMaxSpeed > carSpeed) {
+        carMaxSpeed = carSpeed;
+        numCar = car;
+      }
+
+      const tStart: number = performance.now();
 
       function animationProcess() {
         const cStart = performance.now();
@@ -31,18 +38,11 @@ export class Animation {
             ((allPath - startPosition) / (fullTime / 1000));
         carImg.style.marginLeft = position + "px";
 
-        if (position < allPath) {
-          window.requestAnimationFrame(animationProcess);
-        } else {
-          if (!win.classList.contains("message-win-open")) {
-            const timeWin: string = (fullTime / 1000).toFixed(2);
-            win.innerText = `${carName.innerText} finished first (${timeWin}s)`;
-            win.classList.add("message-win-open");
-          }
-        }
+        if (position < allPath) window.requestAnimationFrame(animationProcess);
       }
       animationProcess();
     });
+    if (selectCar.length > 1) this.drawWinmessage(numCar, carMaxSpeed);
   }
 
   public stopAnimationCar(cars: string[]): void {
@@ -60,5 +60,19 @@ export class Animation {
       car = carContainer.querySelector(".car__img") as SVGSVGElement;
     const cur = car.style.marginLeft;
     car.style.marginLeft = cur;
+  }
+
+  private drawWinmessage(numCar: string, carMaxSpeed: number): void {
+    const carName = document
+        .getElementById(numCar)
+        ?.querySelector(".auto__name") as HTMLParagraphElement,
+      win = document.querySelector(".message-win") as HTMLParagraphElement;
+
+    win.innerText = `${carName.innerText} finished first (${carMaxSpeed}s)`;
+    setTimeout(() => win.classList.add("message-win-open"), carMaxSpeed * 1000);
+    setTimeout(
+      () => win.classList.remove("message-win-open"),
+      carMaxSpeed * 1000 + 3000
+    );
   }
 }
