@@ -31,12 +31,15 @@ export class Appcontroller extends Loader {
     );
   }
 
-  public async getCar(id: string): Promise<void | Response> {
+  public async getCarOrWinners(
+    id: string,
+    page: string
+  ): Promise<void | Response> {
     return super.load(
       {
         method: MethodEnum.get,
       },
-      UrlPage.garage,
+      page,
       [id]
     );
   }
@@ -69,12 +72,12 @@ export class Appcontroller extends Loader {
     );
   }
 
-  public removeSelectCar(): Promise<void | Response> {
+  public removeSelectCar(page: string): Promise<void | Response> {
     return super.load(
       {
         method: MethodEnum.delete,
       },
-      UrlPage.garage,
+      page,
       [this.selectCar]
     );
   }
@@ -150,6 +153,43 @@ export class Appcontroller extends Loader {
       },
       UrlPage.winners,
       [`_page=${this.currentPageWinners}`, "_limit=10"]
+    );
+  }
+
+  public createWinner(
+    id: number,
+    wins: number,
+    time: number
+  ): Promise<void | Response> {
+    const win = { id, wins, time };
+    return super.load(
+      {
+        method: MethodEnum.post,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(win),
+      },
+      UrlPage.winners
+    );
+  }
+
+  public updateWinners(
+    id: string,
+    wins: number,
+    time: number
+  ): Promise<void | Response> {
+    const win = { wins, time };
+    return super.load(
+      {
+        method: MethodEnum.put,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(win),
+      },
+      UrlPage.winners,
+      [id]
     );
   }
 }

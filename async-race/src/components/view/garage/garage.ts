@@ -105,7 +105,6 @@ export class Garage {
     this.btnWinners.setAttribute("data-name", "winners");
 
     this.createCarControl();
-    // this.createPaginationGarage();
 
     this.titleRace.classList.add("title__race");
     this.titleRace.innerText = "Page #";
@@ -540,7 +539,8 @@ export class Garage {
 
     switch (btn) {
       case ControlCarEnum.remove:
-        await this.controller.removeSelectCar();
+        await this.controller.removeSelectCar(UrlPage.garage);
+        await this.controller.removeSelectCar(UrlPage.winners);
         this.removeSelectCar(this.controller.selectCar);
         this.drawTotalCars("DELETE");
         break;

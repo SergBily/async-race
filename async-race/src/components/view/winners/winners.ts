@@ -1,10 +1,11 @@
+import { UrlPage } from "../../../types/enum";
 import { DataServer, DataServerWins } from "../../../types/interface";
 import { Appcontroller } from "../../controller/controller";
 import { LocalStorage } from "../../localStorage/localStorage";
 import { Pagination } from "../pagination";
 
 export class Winners {
-  private controller: Appcontroller;
+  protected controller: Appcontroller;
   private locStorage: LocalStorage;
   private paginationPage: Pagination;
   private readonly wrapper: HTMLDivElement;
@@ -153,7 +154,10 @@ export class Winners {
   }
 
   private async getGoalCar(id: string): Promise<void> {
-    const response = (await this.controller.getCar(id)) as Response,
+    const response = (await this.controller.getCarOrWinners(
+        id,
+        UrlPage.garage
+      )) as Response,
       data: DataServer = await response.json();
 
     this.curCar = data;
@@ -177,6 +181,6 @@ export class Winners {
   }
 
   private writePageToStorage(): void {
-    this.locStorage.setStorage("winners", "true");
+    this.locStorage.setStorage(UrlPage.winners, "true");
   }
 }

@@ -10,7 +10,7 @@ export class Loader {
   private errorHandler(res: Response): Response {
     if (!res.ok) {
       console.log(`Sorry, but there is ${res.status} error: ${res.statusText}`);
-      throw Error(res.statusText);
+      // throw Error(res.statusText);
     }
 
     return res;
@@ -41,8 +41,8 @@ export class Loader {
         this.makeUrl(endpoint, queryParams),
         options
       );
-      this.errorHandler(response);
-      return response;
+
+      return this.errorHandler(response);
     } catch (err: unknown) {
       console.error(err);
     }
