@@ -3,7 +3,7 @@ import { Appcontroller } from "../controller/controller";
 import { Garage } from "../view/garage/garage";
 
 export class App {
-  private controller: Appcontroller;
+  private readonly controller: Appcontroller;
   private readonly garage: Garage;
 
   constructor() {

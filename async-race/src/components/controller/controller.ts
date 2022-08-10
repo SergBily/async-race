@@ -5,18 +5,20 @@ import { LocalStorage } from "../localStorage/localStorage";
 
 export class Appcontroller extends Loader {
   public selectCar: string;
-  protected localPage: string | null;
+  protected localPageGarage: string | null;
   protected locStorage: LocalStorage;
-  private currentPage: number;
+  private currentPageGarage: number;
+  private currentPageWinners: number;
 
   constructor() {
     super();
 
     this.locStorage = new LocalStorage();
     this.selectCar = "";
-    this.currentPage = 1;
-    this.localPage = this.locStorage.getStorage("page");
-    if (this.localPage) this.currentPage = +this.localPage;
+    this.currentPageGarage = 1;
+    this.currentPageWinners = 1;
+    this.localPageGarage = this.locStorage.getStorage("pageGarage");
+    if (this.localPageGarage) this.currentPageGarage = +this.localPageGarage;
   }
 
   public getGaragePage(): Promise<void | Response> {
@@ -25,7 +27,17 @@ export class Appcontroller extends Loader {
         method: MethodEnum.get,
       },
       UrlPage.garage,
-      [`_page=${this.currentPage}`, "_limit=7"]
+      [`_page=${this.currentPageGarage}`, "_limit=7"]
+    );
+  }
+
+  public async getCar(id: string): Promise<void | Response> {
+    return super.load(
+      {
+        method: MethodEnum.get,
+      },
+      UrlPage.garage,
+      [id]
     );
   }
 
@@ -96,13 +108,19 @@ export class Appcontroller extends Loader {
   public paginationPage(btn: string): Promise<void | Response> {
     switch (btn) {
       case BtnPaginationEnum.next:
-        this.currentPage += 1;
-        this.locStorage.setStorage("page", this.currentPage.toString());
+        this.currentPageGarage += 1;
+        this.locStorage.setStorage(
+          "pageGarage",
+          this.currentPageGarage.toString()
+        );
         break;
 
       case BtnPaginationEnum.prev:
-        this.currentPage -= 1;
-        this.locStorage.setStorage("page", this.currentPage.toString());
+        this.currentPageGarage -= 1;
+        this.locStorage.setStorage(
+          "pageGarage",
+          this.currentPageGarage.toString()
+        );
         break;
     }
     return this.getGaragePage();
@@ -122,6 +140,16 @@ export class Appcontroller extends Loader {
       },
       UrlPage.engine,
       [`id=${car}`, `status=${status}`]
+    );
+  }
+
+  public getWiners(): Promise<void | Response> {
+    return super.load(
+      {
+        method: MethodEnum.get,
+      },
+      UrlPage.winners,
+      [`_page=${this.currentPageWinners}`, "_limit=10"]
     );
   }
 }

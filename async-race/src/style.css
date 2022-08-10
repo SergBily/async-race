@@ -175,8 +175,6 @@
   color: rgba(0, 0, 0, 0.7)
 }
 
-
-
 .title__race {
   margin-top: 40px;
   font-size: 2rem;
@@ -305,6 +303,36 @@
   -moz-transition: all 0.5s ease-in-out;
   -ms-transition: all 0.5s ease-in-out;
   -o-transition: all 0.5s ease-in-out;
+}
+
+/* start page winner */
+
+.table {
+  width: 450px;
+  height: auto;
+  margin-top: 30px;
+  border-collapse: separate;
+}
+
+
+.table__caption{
+  background: linear-gradient(45deg, rgb(0, 0, 255), rgba(255, 0, 0, 0.7) 50%, rgb(0, 0, 255));
+  height: 30px;
+  font-size: 1.5rem;
+}
+
+.table__body {
+  background-color: rgba(193, 243, 164, 0.6);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.caption {
+  color: wheat
+}
+
+.cell {
+  color: blue;
 }
 
 

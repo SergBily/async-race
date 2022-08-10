@@ -11,3 +11,9 @@ export interface DataServer {
   color: string;
   id?: number;
 }
+
+export interface DataServerWins {
+  id: number;
+  wins: number;
+  time: number;
+}

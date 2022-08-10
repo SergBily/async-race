@@ -3,6 +3,7 @@ import {
   ControlCarEnum,
   MethodEnum,
   StatusCarEnum,
+  UrlPage,
 } from "../../../types/enum";
 import { DataServer } from "../../../types/interface";
 import {
@@ -15,12 +16,16 @@ import { Appcontroller } from "../../controller/controller";
 import { Animation } from "./animation";
 import { GeneratePromise } from "../../controller/generatePromise";
 import { GenerateCars } from "../../controller/generateCars";
+import { Winners } from "../winners/winners";
+import { Pagination } from "../pagination";
 
 export class Garage {
   private controller: Appcontroller;
   private animationCars: Animation;
   private request: GeneratePromise;
   private generateCars: GenerateCars;
+  private paginationPage: Pagination;
+  private winners: Winners;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -43,9 +48,7 @@ export class Garage {
   private readonly btnGenerate: HTMLButtonElement;
   private readonly titleRace: HTMLHeadingElement;
   private readonly titleNum: HTMLSpanElement;
-  protected readonly pagination: HTMLDivElement;
-  private readonly btnPrev: HTMLButtonElement;
-  private readonly btnNext: HTMLButtonElement;
+  private pagination: HTMLDivElement;
   private members: HTMLDivElement;
   private newCar: HTMLDivElement;
   private curPage: number;
@@ -55,6 +58,8 @@ export class Garage {
     this.animationCars = new Animation();
     this.request = new GeneratePromise();
     this.generateCars = new GenerateCars();
+    this.winners = new Winners();
+    this.paginationPage = new Pagination();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -78,8 +83,6 @@ export class Garage {
     this.titleRace = document.createElement("h2");
     this.titleNum = document.createElement("span");
     this.pagination = document.createElement("div");
-    this.btnPrev = document.createElement("button");
-    this.btnNext = document.createElement("button");
     this.members = document.createElement("div");
     this.newCar = document.createElement("div");
     this.curPage = 1;
@@ -95,19 +98,21 @@ export class Garage {
 
     this.btnGarage.classList.add("btn", "btn__garage");
     this.btnGarage.textContent = "TO GARAGE";
+    this.btnGarage.setAttribute("data-name", "garage");
 
     this.btnWinners.classList.add("btn", "btn__winners");
     this.btnWinners.textContent = "TO WINNERS";
+    this.btnWinners.setAttribute("data-name", "winners");
 
     this.createCarControl();
-    this.createPaginationGarage();
+    // this.createPaginationGarage();
 
     this.titleRace.classList.add("title__race");
     this.titleRace.innerText = "Page #";
 
     this.titleNum.classList.add("title__num");
     this.titleNum.innerText = "1";
-
+    this.pagination = this.paginationPage.createPaginationPage();
     this.titlePage.appendChild(this.totalCars);
     this.btnPages.append(this.btnGarage, this.btnWinners);
     this.titleRace.appendChild(this.titleNum);
@@ -364,22 +369,6 @@ export class Garage {
     }
   }
 
-  private createPaginationGarage(): void {
-    this.pagination.classList.add("pagination");
-
-    this.btnPrev.classList.add("btn", "pagination__prev");
-    this.btnPrev.setAttribute("data-name", "prev");
-    this.btnPrev.innerText = "previous";
-    this.btnPrev.disabled = true;
-
-    this.btnNext.classList.add("btn", "pagination__next");
-    this.btnNext.setAttribute("data-name", "next");
-    this.btnNext.innerText = "next";
-    this.btnNext.disabled = true;
-
-    this.pagination.append(this.btnPrev, this.btnNext);
-  }
-
   public drawNumPage(number: string): void {
     const numPage = document.querySelector(".title__num") as HTMLSpanElement,
       totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
@@ -398,6 +387,11 @@ export class Garage {
     this.carControl.addEventListener("click", (e: Event) => {
       const btn = (e.target as HTMLButtonElement).dataset.name as string;
       this.controlGarage(btn);
+    });
+
+    this.btnPages.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLButtonElement).dataset.name as string;
+      if (btn === UrlPage.winners) this.winners.createPageWinners();
     });
   }
 
