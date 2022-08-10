@@ -1,4 +1,9 @@
-import { UrlPage } from "../../../types/enum";
+import {
+  BtnSortEnum,
+  SortOrderEnum,
+  SortThingEnum,
+  UrlPage,
+} from "../../../types/enum";
 import { DataServer, DataServerWins } from "../../../types/interface";
 import { Appcontroller } from "../../controller/controller";
 import { LocalStorage } from "../../localStorage/localStorage";
@@ -14,7 +19,7 @@ export class Winners {
   private readonly btnPages: HTMLDivElement;
   private readonly btnGarage: HTMLButtonElement;
   private readonly btnWinners: HTMLButtonElement;
-  private readonly caption: HTMLTableRowElement;
+  protected readonly caption: HTMLTableRowElement;
   private readonly table: HTMLTableElement;
   private readonly titleWins: HTMLHeadElement;
   private readonly titleNum: HTMLSpanElement;
@@ -77,6 +82,7 @@ export class Winners {
       this.paginationPage.createPaginationPage()
     );
     this.bodyHtml.appendChild(this.wrapper);
+    this.listener();
   }
 
   private createTableCaption(): void {
@@ -84,7 +90,9 @@ export class Winners {
       car: HTMLTableCellElement = document.createElement("th"),
       name: HTMLTableCellElement = document.createElement("th"),
       wins: HTMLTableCellElement = document.createElement("th"),
-      best: HTMLTableCellElement = document.createElement("th");
+      best: HTMLTableCellElement = document.createElement("th"),
+      winsArrow: HTMLParagraphElement = document.createElement("p"),
+      bestArrow: HTMLParagraphElement = document.createElement("p");
 
     this.caption.classList.add("table__caption");
 
@@ -99,15 +107,22 @@ export class Winners {
 
     wins.classList.add("caption");
     wins.innerText = "Wins";
+    wins.setAttribute("data-name", "wins");
+    winsArrow.classList.add("wins-arrow");
 
     best.classList.add("caption");
     best.innerText = "Best time (s)";
+    best.setAttribute("data-name", "best");
+    bestArrow.classList.add("best-arrow");
+    bestArrow.innerText = "↑";
 
+    wins.appendChild(winsArrow);
+    best.appendChild(bestArrow);
     this.caption.append(number, car, name, wins, best);
   }
 
   private createBodyTable(data: DataServerWins[]): void {
-    const carsWin: HTMLTableRowElement[] = [];
+    this.removeWinners();
 
     data.forEach(async (row, index) => {
       const body: HTMLTableRowElement = document.createElement("tr"),
@@ -134,7 +149,6 @@ export class Winners {
         "beforeend",
         "<use xlink:href='./assets/img/sprite.svg#car'></use>"
       );
-      console.log(this.curCar);
 
       cellName.classList.add("cell");
       cellName.innerText = `${this.curCar.name}`;
@@ -148,8 +162,6 @@ export class Winners {
       cellCar.appendChild(carImg);
       body.append(cellNumber, cellCar, cellName, cellWins, cellBest);
       this.table.append(body);
-
-      carsWin.push(body);
     });
   }
 
@@ -164,10 +176,13 @@ export class Winners {
   }
 
   private async getdataWins(): Promise<void> {
-    const response = (await this.controller.getWiners()) as Response,
+    const response = (await this.controller.getWiners(
+        SortThingEnum.best,
+        SortOrderEnum.up
+      )) as Response,
       data: DataServerWins[] = await response.json(),
       totalWins = response.headers.get("X-Total-Count") as string;
-    console.log(data);
+
     this.createBodyTable(data);
     this.titlePage.innerText = `${this.titlePage.innerText}${totalWins})`;
   }
@@ -180,7 +195,82 @@ export class Winners {
     }
   }
 
+  private removeWinners(): void {
+    const table = document.querySelector(".table") as HTMLTableElement,
+      allElement: HTMLCollection = table.children;
+
+    for (let i = 0; i < allElement.length; i++) {
+      if (allElement[i].classList.contains("table__body")) {
+        allElement[i].remove();
+      }
+    }
+  }
+
   private writePageToStorage(): void {
     this.locStorage.setStorage(UrlPage.winners, "true");
+  }
+
+  private listener(): void {
+    this.caption.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).dataset.name as string;
+      this.sortWiners(btn);
+    });
+  }
+
+  public async sortWiners(btn: string) {
+    const winsArrow = document.querySelector(
+        ".wins-arrow"
+      ) as HTMLParagraphElement,
+      bestArrow = document.querySelector(".best-arrow") as HTMLParagraphElement;
+
+    let response: Response, data: DataServerWins[], totalWins: string;
+
+    switch (btn) {
+      case BtnSortEnum.wins:
+        if (winsArrow.innerText === "↑") {
+          winsArrow.innerText = "↓";
+          bestArrow.innerText = "";
+          response = (await this.controller.getWiners(
+            SortThingEnum.wins,
+            SortOrderEnum.down
+          )) as Response;
+        } else {
+          winsArrow.innerText = "↑";
+          bestArrow.innerText = "";
+          response = (await this.controller.getWiners(
+            SortThingEnum.wins,
+            SortOrderEnum.up
+          )) as Response;
+        }
+        data = await response.json();
+        totalWins = response.headers.get("X-Total-Count") as string;
+
+        this.createBodyTable(data);
+        this.titlePage.innerText = `Winners(${totalWins})`;
+        break;
+
+      case BtnSortEnum.best:
+        if (bestArrow.innerText === "↑") {
+          bestArrow.innerText = "↓";
+          winsArrow.innerText = "";
+          response = (await this.controller.getWiners(
+            SortThingEnum.best,
+            SortOrderEnum.down
+          )) as Response;
+        } else {
+          bestArrow.innerText = "↑";
+          winsArrow.innerText = "";
+          response = (await this.controller.getWiners(
+            SortThingEnum.best,
+            SortOrderEnum.up
+          )) as Response;
+        }
+        data = await response.json();
+        totalWins = response.headers.get("X-Total-Count") as string;
+
+        this.createBodyTable(data);
+        this.titlePage.innerText = `Winners(${totalWins})`;
+        break;
+    }
   }
 }

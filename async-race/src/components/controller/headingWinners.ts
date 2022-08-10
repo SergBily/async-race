@@ -1,4 +1,5 @@
 import { Winners } from "../view/winners/winners";
+
 import { DataServerWins } from "../../types/interface";
 
 export class HeadingWinners extends Winners {
@@ -11,6 +12,7 @@ export class HeadingWinners extends Winners {
       numCar,
       "winners"
     )) as Response;
+
     if (response.status === 404) {
       this.controller.createWinner(+numCar, 1, carMaxSpeed);
     } else {

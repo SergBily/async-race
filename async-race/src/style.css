@@ -308,7 +308,7 @@
 /* start page winner */
 
 .table {
-  width: 450px;
+  width: 500px;
   height: auto;
   margin-top: 30px;
   border-collapse: separate;
@@ -319,6 +319,7 @@
   background: linear-gradient(45deg, rgb(0, 0, 255), rgba(255, 0, 0, 0.7) 50%, rgb(0, 0, 255));
   height: 30px;
   font-size: 1.5rem;
+  text-align: left;
 }
 
 .table__body {
@@ -328,12 +329,31 @@
 }
 
 .caption {
+  position: relative;
   color: wheat
 }
 
 .cell {
   color: blue;
 }
+
+.wins-arrow {
+  position: absolute;
+  top: 0;
+  left: 53px;
+}
+
+.best-arrow {
+  position: absolute;
+  top: 0;
+  left: 143px;
+}
+
+.container__wins {
+  width: 500px;
+  height: auto;
+}
+
 
 
 

@@ -37,3 +37,18 @@ export enum StatusCarEnum {
   stop = "stopped",
   drive = "drive",
 }
+
+export enum BtnSortEnum {
+  wins = "wins",
+  best = "best",
+}
+
+export enum SortThingEnum {
+  wins = "wins",
+  best = "time",
+}
+
+export enum SortOrderEnum {
+  up = "ASC",
+  down = "DESC",
+}

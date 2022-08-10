@@ -2,11 +2,9 @@ import { EngineData } from "../../../types/types";
 import { HeadingWinners } from "../../controller/headingWinners";
 
 export class Animation {
-  // myReqs: Map<string, number>;
   private headingWinners: HeadingWinners;
 
   constructor() {
-    // this.myReqs = new Map();
     this.headingWinners = new HeadingWinners();
   }
 
@@ -24,7 +22,6 @@ export class Animation {
         fullTime: number = data[index].distance / data[index].velocity,
         allPath: number = widthAllPath.offsetWidth - 95,
         carSpeed = +(fullTime / 1000).toFixed(2);
-      // console.log(carSpeed);
 
       if (carMaxSpeed > carSpeed) {
         carMaxSpeed = carSpeed;

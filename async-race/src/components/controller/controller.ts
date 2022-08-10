@@ -146,13 +146,18 @@ export class Appcontroller extends Loader {
     );
   }
 
-  public getWiners(): Promise<void | Response> {
+  public getWiners(sort: string, order: string): Promise<void | Response> {
     return super.load(
       {
         method: MethodEnum.get,
       },
       UrlPage.winners,
-      [`_page=${this.currentPageWinners}`, "_limit=10"]
+      [
+        `_page=${this.currentPageWinners}`,
+        "_limit=10",
+        `_sort=${sort}`,
+        `_order=${order}`,
+      ]
     );
   }
 
