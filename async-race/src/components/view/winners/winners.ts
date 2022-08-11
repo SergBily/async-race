@@ -5,6 +5,7 @@ import {
   UrlPage,
 } from "../../../types/enum";
 import { DataServer, DataServerWins } from "../../../types/interface";
+import { App } from "../../app/app";
 import { Appcontroller } from "../../controller/controller";
 import { LocalStorage } from "../../localStorage/localStorage";
 import { Pagination } from "../pagination";
@@ -45,6 +46,7 @@ export class Winners {
   }
 
   public createPageWinners(): void {
+    this.locStorage.setStorage("pageWinners", "open");
     this.writePageToStorage();
     this.removeGaragePage();
     this.wrapper.classList.add("wrapper");
@@ -211,6 +213,11 @@ export class Winners {
   }
 
   private listener(): void {
+    const startPageGarage = new App();
+    this.btnGarage.addEventListener("click", () => {
+      startPageGarage.startGaragePage();
+    });
+
     this.caption.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).dataset.name as string;
       this.sortWiners(btn);

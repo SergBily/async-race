@@ -18,6 +18,7 @@ import { GeneratePromise } from "../../controller/generatePromise";
 import { GenerateCars } from "../../controller/generateCars";
 import { Winners } from "../winners/winners";
 import { Pagination } from "../pagination";
+import { LocalStorage } from "../../localStorage/localStorage";
 
 export class Garage {
   private controller: Appcontroller;
@@ -26,6 +27,7 @@ export class Garage {
   private generateCars: GenerateCars;
   private paginationPage: Pagination;
   private winners: Winners;
+  private locStorage: LocalStorage;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
@@ -60,6 +62,7 @@ export class Garage {
     this.generateCars = new GenerateCars();
     this.winners = new Winners();
     this.paginationPage = new Pagination();
+    this.locStorage = new LocalStorage();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
@@ -89,6 +92,11 @@ export class Garage {
   }
 
   public createPageGarage(): void {
+    if (this.body.firstElementChild) {
+      this.body.firstElementChild.remove();
+    }
+    this.locStorage.setStorage("pageWinners", "close");
+
     this.wrapper.classList.add("wrapper");
     this.titlePage.classList.add("title__page");
     this.titlePage.innerText = "Garage(";
