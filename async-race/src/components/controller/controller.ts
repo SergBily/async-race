@@ -108,25 +108,57 @@ export class Appcontroller extends Loader {
     );
   }
 
-  public paginationPage(btn: string): Promise<void | Response> {
+  public paginationPage(
+    btn: string,
+    namePage: string
+  ): Promise<void | Response> {
+    let startSort = ["wins", "DESK"];
+
+    if (this.locStorage.getStorage("sort")) {
+      startSort = JSON.parse(this.locStorage.getStorage("sort") as string);
+    }
+
     switch (btn) {
       case BtnPaginationEnum.next:
-        this.currentPageGarage += 1;
-        this.locStorage.setStorage(
-          "pageGarage",
-          this.currentPageGarage.toString()
-        );
+        if (namePage === "Winners") {
+          this.currentPageWinners += 1;
+
+          this.locStorage.setStorage(
+            "pageWinners",
+            this.currentPageWinners.toString()
+          );
+        } else {
+          this.currentPageGarage += 1;
+
+          this.locStorage.setStorage(
+            "pageGarage",
+            this.currentPageGarage.toString()
+          );
+        }
         break;
 
       case BtnPaginationEnum.prev:
-        this.currentPageGarage -= 1;
-        this.locStorage.setStorage(
-          "pageGarage",
-          this.currentPageGarage.toString()
-        );
+        if (namePage === "Winners") {
+          this.currentPageWinners -= 1;
+
+          this.locStorage.setStorage(
+            "pageWinners",
+            this.currentPageWinners.toString()
+          );
+        } else {
+          this.currentPageGarage -= 1;
+
+          this.locStorage.setStorage(
+            "pageGarage",
+            this.currentPageGarage.toString()
+          );
+        }
         break;
     }
-    return this.getGaragePage();
+
+    return namePage === "Winners"
+      ? this.getWiners(startSort[0], startSort[1])
+      : this.getGaragePage();
   }
 
   public controlEngineCar(

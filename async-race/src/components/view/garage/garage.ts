@@ -21,11 +21,11 @@ import { Pagination } from "../pagination";
 import { LocalStorage } from "../../localStorage/localStorage";
 
 export class Garage {
-  private controller: Appcontroller;
+  public controller: Appcontroller;
   private animationCars: Animation;
   private request: GeneratePromise;
   private generateCars: GenerateCars;
-  private paginationPage: Pagination;
+  private paginationBtns: Pagination;
   private winners: Winners;
   private locStorage: LocalStorage;
   private readonly body;
@@ -53,7 +53,7 @@ export class Garage {
   private pagination: HTMLDivElement;
   private members: HTMLDivElement;
   private newCar: HTMLDivElement;
-  private curPage: number;
+  public curPage: number;
 
   constructor() {
     this.controller = new Appcontroller();
@@ -61,7 +61,7 @@ export class Garage {
     this.request = new GeneratePromise();
     this.generateCars = new GenerateCars();
     this.winners = new Winners();
-    this.paginationPage = new Pagination();
+    this.paginationBtns = new Pagination();
     this.locStorage = new LocalStorage();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
@@ -95,7 +95,7 @@ export class Garage {
     if (this.body.firstElementChild) {
       this.body.firstElementChild.remove();
     }
-    this.locStorage.setStorage("pageWinners", "close");
+    this.locStorage.setStorage("pWinners", "close");
 
     this.wrapper.classList.add("wrapper");
     this.titlePage.classList.add("title__page");
@@ -119,7 +119,7 @@ export class Garage {
 
     this.titleNum.classList.add("title__num");
     this.titleNum.innerText = "1";
-    this.pagination = this.paginationPage.createPaginationPage();
+    this.pagination = this.paginationBtns.createPaginationPage();
     this.titlePage.appendChild(this.totalCars);
     this.btnPages.append(this.btnGarage, this.btnWinners);
     this.titleRace.appendChild(this.titleNum);
@@ -132,7 +132,7 @@ export class Garage {
       this.pagination
     );
     this.body.appendChild(this.wrapper);
-
+    this.paginationBtns.addListeners(this);
     this.addListeners();
   }
 
@@ -304,6 +304,7 @@ export class Garage {
           ?.getAttribute("id") as string;
 
         const btn = (e.target as HTMLElement).dataset.name as string;
+
         this.controlMember(btn);
       })
     );
@@ -325,6 +326,7 @@ export class Garage {
     random?: boolean
   ): void {
     const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
+
     let chooseNum: number;
 
     switch (method) {
@@ -347,7 +349,7 @@ export class Garage {
     }
     const allCar = parseInt(totalCars.innerText);
 
-    this.controlPaginationBtn(allCar);
+    this.paginationBtns.controlPaginationBtn(allCar, this.curPage);
   }
 
   public removeSelectCar(id: string): void {
@@ -376,21 +378,7 @@ export class Garage {
     }
   }
 
-  public drawNumPage(number: string): void {
-    const numPage = document.querySelector(".title__num") as HTMLSpanElement,
-      totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
-    numPage.innerText = number;
-    this.curPage = +number;
-    const allCar = parseInt(totalCars.innerText);
-    this.controlPaginationBtn(allCar);
-  }
-
   private addListeners(): void {
-    this.pagination.addEventListener("click", (e) => {
-      const btn = (e.target as HTMLElement).dataset.name as string;
-      this.switchOtherPage(btn);
-    });
-
     this.carControl.addEventListener("click", (e: Event) => {
       const btn = (e.target as HTMLButtonElement).dataset.name as string;
       this.controlGarage(btn);
@@ -402,7 +390,7 @@ export class Garage {
     });
   }
 
-  private updateEnable(): void {
+  private enableUpdate(): void {
     const input = document.querySelector(".input__update") as HTMLInputElement,
       color = document.querySelector(
         ".input__color-update"
@@ -417,42 +405,6 @@ export class Garage {
     } else {
       input.disabled = true;
       color.disabled = true;
-    }
-  }
-
-  public async switchOtherPage(btn: string): Promise<void> {
-    const response = (await this.controller.paginationPage(btn)) as Response;
-    const data: DataServer[] = await response.json();
-    const numPage = (response.url.match(
-      /page=\d*/
-    ) as RegExpMatchArray)[0].split("=")[1];
-
-    this.drawCars(data);
-    this.drawNumPage(numPage);
-  }
-
-  private controlPaginationBtn(allCar: number): void {
-    const prev = document.querySelector(
-        ".pagination__prev"
-      ) as HTMLButtonElement,
-      next = document.querySelector(".pagination__next") as HTMLButtonElement,
-      limitCar = 7,
-      allPage = Math.ceil(allCar / limitCar);
-
-    if (this.curPage === allPage) {
-      next.disabled = true;
-      next.classList.remove("pagination__activ");
-    } else if (this.curPage < allPage) {
-      next.disabled = false;
-      next.classList.add("pagination__activ");
-    }
-
-    if (this.curPage === 1) {
-      prev.disabled = true;
-      prev.classList.remove("pagination__activ");
-    } else {
-      prev.disabled = false;
-      prev.classList.add("pagination__activ");
     }
   }
 
@@ -504,7 +456,7 @@ export class Garage {
         data = (await response.json()) as DataServer;
         this.drawUpdateCar(data, this.controller.selectCar);
         this.cleanInputField(btn);
-        this.updateEnable();
+        this.enableUpdate();
         break;
 
       case BtnControlGarageEnum.racce:
@@ -577,7 +529,6 @@ export class Garage {
           ) as RegExpMatchArray)[0].split("=")[1];
           this.animationCars.engineBreak(carBreak);
         }
-
         break;
 
       case ControlCarEnum.stop:
@@ -590,7 +541,7 @@ export class Garage {
         break;
 
       case ControlCarEnum.select:
-        this.updateEnable();
+        this.enableUpdate();
         break;
     }
   }

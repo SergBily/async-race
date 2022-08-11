@@ -13,7 +13,7 @@ export interface DataServer {
 }
 
 export interface DataServerWins {
-  id: number;
   wins: number;
   time: number;
+  id: number;
 }

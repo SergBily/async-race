@@ -11,12 +11,12 @@ import { LocalStorage } from "../../localStorage/localStorage";
 import { Pagination } from "../pagination";
 
 export class Winners {
-  protected controller: Appcontroller;
+  public controller: Appcontroller;
   private locStorage: LocalStorage;
-  private paginationPage: Pagination;
+  private paginationBtns: Pagination;
   private readonly wrapper: HTMLDivElement;
   private readonly titlePage: HTMLHeadingElement;
-  private readonly totalCars: HTMLSpanElement;
+  private readonly totalWinners: HTMLSpanElement;
   private readonly btnPages: HTMLDivElement;
   private readonly btnGarage: HTMLButtonElement;
   private readonly btnWinners: HTMLButtonElement;
@@ -26,14 +26,15 @@ export class Winners {
   private readonly titleNum: HTMLSpanElement;
   private curCar: DataServer;
   private bodyHtml;
+  public curPage: number;
 
   constructor() {
     this.controller = new Appcontroller();
     this.locStorage = new LocalStorage();
-    this.paginationPage = new Pagination();
+    this.paginationBtns = new Pagination();
     this.wrapper = document.createElement("div");
     this.titlePage = document.createElement("h1");
-    this.totalCars = document.createElement("span");
+    this.totalWinners = document.createElement("span");
     this.btnPages = document.createElement("div");
     this.btnGarage = document.createElement("button");
     this.btnWinners = document.createElement("button");
@@ -43,16 +44,17 @@ export class Winners {
     this.titleNum = document.createElement("span");
     this.curCar = { name: "", color: "" };
     this.bodyHtml = document.querySelector(".body") as HTMLBodyElement;
+    this.curPage = 1;
   }
 
   public createPageWinners(): void {
-    this.locStorage.setStorage("pageWinners", "open");
+    this.locStorage.setStorage("pWinners", "open");
     this.writePageToStorage();
     this.removeGaragePage();
     this.wrapper.classList.add("wrapper");
     this.titlePage.classList.add("title__page");
     this.titlePage.innerText = "Winners(";
-    this.totalCars.classList.add("total__winners");
+    this.totalWinners.classList.add("total__cars");
     this.btnPages.classList.add("btn__pages");
 
     this.btnGarage.classList.add("btn", "btn__garage");
@@ -72,6 +74,7 @@ export class Winners {
     this.table.classList.add("table");
 
     this.createTableCaption();
+    this.titlePage.appendChild(this.totalWinners);
     this.titleWins.appendChild(this.titleNum);
     this.btnPages.append(this.btnGarage, this.btnWinners);
     this.table.append(this.caption);
@@ -81,10 +84,11 @@ export class Winners {
       this.btnPages,
       this.titleWins,
       this.table,
-      this.paginationPage.createPaginationPage()
+      this.paginationBtns.createPaginationPage()
     );
     this.bodyHtml.appendChild(this.wrapper);
-    this.listener();
+    this.listeners();
+    this.paginationBtns.addListeners(this);
   }
 
   private createTableCaption(): void {
@@ -123,7 +127,10 @@ export class Winners {
     this.caption.append(number, car, name, wins, best);
   }
 
-  private createBodyTable(data: DataServerWins[]): void {
+  public drawCars(data: DataServerWins[]): void {
+    this.removeWinners();
+    this.table.appendChild(this.caption);
+
     data.forEach(async (row, index) => {
       const body: HTMLTableRowElement = document.createElement("tr"),
         cellNumber: HTMLTableCellElement = document.createElement("td"),
@@ -183,8 +190,15 @@ export class Winners {
       data: DataServerWins[] = await response.json(),
       totalWins = response.headers.get("X-Total-Count") as string;
 
-    this.createBodyTable(data);
-    this.titlePage.innerText = `${this.titlePage.innerText}${totalWins})`;
+    this.drawCars(data);
+    this.totalWinners.innerText = `${totalWins})`;
+    if (+totalWins > 10) {
+      const next = document.querySelector(
+        ".pagination__next"
+      ) as HTMLButtonElement;
+      next.classList.add("pagination__activ");
+      next.disabled = false;
+    }
   }
 
   private removeGaragePage(): void {
@@ -201,20 +215,13 @@ export class Winners {
     while (table.firstElementChild) {
       table.firstElementChild.remove();
     }
-    //   allElement: HTMLCollection = table.children;
-
-    // for (let i = 0; i < allElement.length; i++) {
-    //   if (allElement[i].classList.contains("table__body")) {
-    //     allElement[i].remove();
-    //   }
-    // }
   }
 
   private writePageToStorage(): void {
     this.locStorage.setStorage(UrlPage.winners, "true");
   }
 
-  private listener(): void {
+  private listeners(): void {
     const startPageGarage = new App();
     this.btnGarage.addEventListener("click", () => {
       startPageGarage.startGaragePage();
@@ -232,7 +239,7 @@ export class Winners {
       ) as HTMLParagraphElement,
       bestArrow = document.querySelector(".best-arrow") as HTMLParagraphElement;
 
-    let response: Response, data: DataServerWins[], totalWins: string;
+    let response: Response, data: DataServerWins[];
 
     switch (btn) {
       case BtnSortEnum.wins:
@@ -243,6 +250,7 @@ export class Winners {
             SortThingEnum.wins,
             SortOrderEnum.down
           )) as Response;
+          this.saveSortToStorage(SortThingEnum.wins, SortOrderEnum.down);
         } else {
           winsArrow.innerText = "↑";
           bestArrow.innerText = "";
@@ -250,14 +258,10 @@ export class Winners {
             SortThingEnum.wins,
             SortOrderEnum.up
           )) as Response;
+          this.saveSortToStorage(SortThingEnum.wins, SortOrderEnum.up);
         }
         data = await response.json();
-        totalWins = response.headers.get("X-Total-Count") as string;
-        this.removeWinners();
-        this.table.appendChild(this.caption);
-
-        this.createBodyTable(data);
-        this.titlePage.innerText = `Winners(${totalWins})`;
+        this.drawCars(data);
         break;
 
       case BtnSortEnum.best:
@@ -268,6 +272,7 @@ export class Winners {
             SortThingEnum.best,
             SortOrderEnum.down
           )) as Response;
+          this.saveSortToStorage(SortThingEnum.best, SortOrderEnum.down);
         } else {
           bestArrow.innerText = "↑";
           winsArrow.innerText = "";
@@ -275,15 +280,16 @@ export class Winners {
             SortThingEnum.best,
             SortOrderEnum.up
           )) as Response;
+          this.saveSortToStorage(SortThingEnum.best, SortOrderEnum.up);
         }
         data = await response.json();
-        totalWins = response.headers.get("X-Total-Count") as string;
-        this.removeWinners();
-        this.table.appendChild(this.caption);
-
-        this.createBodyTable(data);
-        this.titlePage.innerText = `Winners(${totalWins})`;
+        this.drawCars(data);
         break;
     }
+  }
+
+  private saveSortToStorage(sort: string, order: string): void {
+    const data: string = JSON.stringify([sort, order]);
+    this.locStorage.setStorage("sort", data);
   }
 }

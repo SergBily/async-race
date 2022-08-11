@@ -1,4 +1,6 @@
-import { DataServer } from "./interface";
+import { Garage } from "../components/view/garage/garage";
+import { Winners } from "../components/view/winners/winners";
+import { DataServer, DataServerWins } from "./interface";
 
 export type Headers = {
   [index: string]: string;
@@ -26,3 +28,7 @@ export type AnimationFame = {
 export type ResponseT = Response | Response[];
 
 export type DataServerT = DataServer | EngineData[];
+
+export type CurrentPage = Winners | Garage;
+
+export type DataServerBothPage = DataServer[] & DataServerWins[];
