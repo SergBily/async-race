@@ -124,8 +124,6 @@ export class Winners {
   }
 
   private createBodyTable(data: DataServerWins[]): void {
-    this.removeWinners();
-
     data.forEach(async (row, index) => {
       const body: HTMLTableRowElement = document.createElement("tr"),
         cellNumber: HTMLTableCellElement = document.createElement("td"),
@@ -198,14 +196,18 @@ export class Winners {
   }
 
   private removeWinners(): void {
-    const table = document.querySelector(".table") as HTMLTableElement,
-      allElement: HTMLCollection = table.children;
+    const table = document.querySelector(".table") as HTMLTableElement;
 
-    for (let i = 0; i < allElement.length; i++) {
-      if (allElement[i].classList.contains("table__body")) {
-        allElement[i].remove();
-      }
+    while (table.firstElementChild) {
+      table.firstElementChild.remove();
     }
+    //   allElement: HTMLCollection = table.children;
+
+    // for (let i = 0; i < allElement.length; i++) {
+    //   if (allElement[i].classList.contains("table__body")) {
+    //     allElement[i].remove();
+    //   }
+    // }
   }
 
   private writePageToStorage(): void {
@@ -251,6 +253,8 @@ export class Winners {
         }
         data = await response.json();
         totalWins = response.headers.get("X-Total-Count") as string;
+        this.removeWinners();
+        this.table.appendChild(this.caption);
 
         this.createBodyTable(data);
         this.titlePage.innerText = `Winners(${totalWins})`;
@@ -274,6 +278,8 @@ export class Winners {
         }
         data = await response.json();
         totalWins = response.headers.get("X-Total-Count") as string;
+        this.removeWinners();
+        this.table.appendChild(this.caption);
 
         this.createBodyTable(data);
         this.titlePage.innerText = `Winners(${totalWins})`;
