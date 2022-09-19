@@ -1,7 +1,6 @@
 import {
   BtnControlGarageEnum,
   ControlCarEnum,
-  MethodEnum,
   StatusCarEnum,
   UrlPage,
 } from "../../../types/enum";
@@ -11,6 +10,7 @@ import {
   DataServerT,
   EngineData,
   ResponseT,
+  StateGarage,
 } from "../../../types/types";
 import { Appcontroller } from "../../controller/controller";
 import { Animation } from "./animation";
@@ -19,6 +19,11 @@ import { GenerateCars } from "../../controller/generateCars";
 import { Winners } from "../winners/winners";
 import { Pagination } from "../pagination";
 import { LocalStorage } from "../../localStorage/localStorage";
+import { AddCar, RandomCar, RemoveCar } from "../../../utils/StateGarage";
+import {
+  customCreateNewElement,
+  customInsertChilds,
+} from "../../../utils/newElement";
 
 export class Garage {
   public controller: Appcontroller;
@@ -27,33 +32,14 @@ export class Garage {
   private generateCars: GenerateCars;
   private paginationBtns: Pagination;
   private winners: Winners;
-  private locStorage: LocalStorage;
+  private cuctomStorage: LocalStorage;
   private readonly body;
   private readonly wrapper: HTMLDivElement;
-  private readonly titlePage: HTMLHeadingElement;
-  private readonly totalCars: HTMLSpanElement;
-  private readonly btnPages: HTMLDivElement;
-  private readonly btnGarage: HTMLButtonElement;
-  private readonly btnWinners: HTMLButtonElement;
-  private readonly carControl: HTMLDivElement;
-  private readonly createCarNew: HTMLDivElement;
-  private readonly inputCreateCar: HTMLInputElement;
-  private readonly inputCreateColor: HTMLInputElement;
-  private readonly btnCreateCar: HTMLButtonElement;
-  private readonly carUpdate: HTMLDivElement;
-  private readonly inputUpdateCar: HTMLInputElement;
-  private readonly inputUpdateColor: HTMLInputElement;
-  private readonly btnUpdateCar: HTMLButtonElement;
-  private readonly garageControl: HTMLDivElement;
-  private readonly btnRace: HTMLButtonElement;
-  private readonly btnReset: HTMLButtonElement;
-  private readonly btnGenerate: HTMLButtonElement;
-  private readonly titleRace: HTMLHeadingElement;
-  private readonly titleNum: HTMLSpanElement;
   private pagination: HTMLDivElement;
   private members: HTMLDivElement;
   private newCar: HTMLDivElement;
   public curPage: number;
+  public allCarToGarage: number;
 
   constructor() {
     this.controller = new Appcontroller();
@@ -62,153 +48,197 @@ export class Garage {
     this.generateCars = new GenerateCars();
     this.winners = new Winners();
     this.paginationBtns = new Pagination();
-    this.locStorage = new LocalStorage();
+    this.cuctomStorage = new LocalStorage();
     this.body = document.querySelector(".body") as HTMLBodyElement;
     this.wrapper = document.createElement("div");
-    this.titlePage = document.createElement("h1");
-    this.totalCars = document.createElement("span");
-    this.btnPages = document.createElement("div");
-    this.btnGarage = document.createElement("button");
-    this.btnWinners = document.createElement("button");
-    this.carControl = document.createElement("div");
-    this.createCarNew = document.createElement("div");
-    this.inputCreateCar = document.createElement("input");
-    this.inputCreateColor = document.createElement("input");
-    this.btnCreateCar = document.createElement("button");
-    this.carUpdate = document.createElement("div");
-    this.inputUpdateCar = document.createElement("input");
-    this.inputUpdateColor = document.createElement("input");
-    this.btnUpdateCar = document.createElement("button");
-    this.garageControl = document.createElement("div");
-    this.btnRace = document.createElement("button");
-    this.btnReset = document.createElement("button");
-    this.btnGenerate = document.createElement("button");
-    this.titleRace = document.createElement("h2");
-    this.titleNum = document.createElement("span");
     this.pagination = document.createElement("div");
     this.members = document.createElement("div");
     this.newCar = document.createElement("div");
     this.curPage = 1;
+    this.allCarToGarage = 0;
   }
 
   public createPageGarage(): void {
     if (this.body.firstElementChild) {
       this.body.firstElementChild.remove();
     }
-    this.locStorage.setStorage("pWinners", "close");
+    this.cuctomStorage.setStorage("pWinners", "close");
 
     this.wrapper.classList.add("wrapper");
-    this.titlePage.classList.add("title__page");
-    this.titlePage.innerText = "Garage(";
-    this.totalCars.classList.add("total__cars");
-
-    this.btnPages.classList.add("btn__pages");
-
-    this.btnGarage.classList.add("btn", "btn__garage");
-    this.btnGarage.textContent = "TO GARAGE";
-    this.btnGarage.setAttribute("data-name", "garage");
-
-    this.btnWinners.classList.add("btn", "btn__winners");
-    this.btnWinners.textContent = "TO WINNERS";
-    this.btnWinners.setAttribute("data-name", "winners");
-
-    this.createCarControl();
-
-    this.titleRace.classList.add("title__race");
-    this.titleRace.innerText = "Page #";
-
-    this.titleNum.classList.add("title__num");
-    this.titleNum.innerText = "1";
-    this.pagination = this.paginationBtns.createPaginationPage();
-    this.titlePage.appendChild(this.totalCars);
-    this.btnPages.append(this.btnGarage, this.btnWinners);
-    this.titleRace.appendChild(this.titleNum);
-    this.wrapper.append(
-      this.titlePage,
-      this.btnPages,
-      this.carControl,
-      this.titleRace,
-      this.members,
-      this.pagination
+    const titlePage = customCreateNewElement<HTMLHeadElement>(
+      "h1",
+      ["title__page"],
+      "Garage("
     );
-    this.body.appendChild(this.wrapper);
+    const totalCars = customCreateNewElement<HTMLSpanElement>("span", [
+      "total__cars",
+    ]);
+    const btnPages = customCreateNewElement<HTMLDivElement>("div", [
+      "btn__pages",
+    ]);
+    const btnGarage = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "btn__garage"],
+      "TO GARAGE",
+      { "data-name": "garage" }
+    );
+    const btnWinners = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "btn__winners"],
+      "TO WINNERS",
+      { "data-name": "winners" }
+    );
+    const titleRace = customCreateNewElement<HTMLHeadElement>(
+      "h2",
+      ["title__race"],
+      "Page #"
+    );
+    const titleNum = customCreateNewElement<HTMLSpanElement>(
+      "span",
+      ["title__num"],
+      "1"
+    );
+
+    this.pagination = this.paginationBtns.createPaginationPage();
+    console.log(this.pagination);
+
+    customInsertChilds(this.body, [this.wrapper]);
+    customInsertChilds(titlePage, [totalCars]);
+    customInsertChilds(btnPages, [btnGarage, btnWinners]);
+    customInsertChilds(titleRace, [titleNum]);
+    customInsertChilds(this.wrapper, [
+      titlePage,
+      btnPages,
+      this.createControlCars(),
+      titleRace,
+      this.members,
+      this.pagination,
+    ]);
+
     this.paginationBtns.addListeners(this);
-    this.addListeners();
+    btnPages.addEventListener("click", this.addListeners.bind(this));
   }
 
-  private createCarControl(): void {
-    this.carControl.classList.add("car__control");
-    this.createCarNew.classList.add("car__new");
+  private createControlCars(): HTMLDivElement {
+    const carControl = customCreateNewElement<HTMLDivElement>("div", [
+      "car__control",
+    ]);
 
-    this.inputCreateCar.classList.add("car__input");
-    this.inputCreateCar.type = "text";
-    this.inputCreateCar.autofocus = true;
-    this.inputCreateCar.autocomplete = "on";
-    this.inputCreateCar.placeholder = "create auto";
+    customInsertChilds(carControl, [
+      this.createControlsNewCar(),
+      this.createControlsUpdateCar(),
+      this.createControlsAllCar(),
+      this.winCar(),
+    ]);
 
-    this.inputCreateColor.classList.add("car__color");
-    this.inputCreateColor.type = "color";
-    this.inputCreateColor.value = "#f41049";
+    carControl.addEventListener("click", this.addListeners.bind(this));
+    return carControl;
+  }
 
-    this.btnCreateCar.classList.add("btn", "btn__car", "car__create");
-    this.btnCreateCar.setAttribute("data-name", "create");
-    this.btnCreateCar.innerText = "CREATE";
+  private createControlsNewCar(): HTMLDivElement {
+    const containerCreateCar = customCreateNewElement<HTMLDivElement>("div", [
+      "car__new",
+    ]);
 
-    this.carUpdate.classList.add("car__update");
-
-    this.inputUpdateCar.classList.add("car__input", "input__update", "disable");
-    this.inputUpdateCar.type = "text";
-    this.inputUpdateCar.autocomplete = "on";
-    this.inputUpdateCar.placeholder = "update auto";
-    this.inputUpdateCar.disabled = true;
-
-    this.inputUpdateColor.classList.add(
-      "car__color",
-      "input__color-update",
-      "disable"
+    const inputCreateCar = customCreateNewElement<HTMLInputElement>(
+      "input",
+      ["car__input"],
+      undefined,
+      {
+        type: "test",
+        autofocus: "true",
+        autocomplete: "on",
+        placeholder: "create auto",
+      }
     );
-    this.inputUpdateColor.type = "color";
-    this.inputUpdateColor.value = "#2819f5";
-    this.inputUpdateColor.disabled = true;
-
-    this.btnUpdateCar.classList.add("btn", "btn__car", "car__updates");
-    this.btnUpdateCar.setAttribute("data-name", "update");
-    this.btnUpdateCar.innerText = "UPDATE";
-
-    this.garageControl.classList.add("garage__control");
-
-    this.btnRace.classList.add("btn", "control__race");
-    this.btnRace.setAttribute("data-name", "race");
-    this.btnRace.textContent = "RACE";
-
-    this.btnReset.classList.add("btn", "control__reset");
-    this.btnReset.setAttribute("data-name", "reset");
-    this.btnReset.textContent = "RESET";
-
-    this.btnGenerate.classList.add("btn", "btn__car", "contorl__generate");
-    this.btnGenerate.setAttribute("data-name", "generate");
-    this.btnGenerate.textContent = "GENERATE CARS";
-
-    this.createCarNew.append(
-      this.inputCreateCar,
-      this.inputCreateColor,
-      this.btnCreateCar
+    const inputCreateColor = customCreateNewElement<HTMLInputElement>(
+      "input",
+      ["car__color"],
+      undefined,
+      { type: "color", value: "#f41049" }
+    );
+    const btnCreateCar = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "btn__car", "car__create"],
+      "CREATE",
+      { "data-name": "create" }
     );
 
-    this.carUpdate.append(
-      this.inputUpdateCar,
-      this.inputUpdateColor,
-      this.btnUpdateCar
+    customInsertChilds(containerCreateCar, [
+      inputCreateCar,
+      inputCreateColor,
+      btnCreateCar,
+    ]);
+    return containerCreateCar;
+  }
+
+  private createControlsUpdateCar(): HTMLDivElement {
+    const containerUpdateCar = customCreateNewElement<HTMLDivElement>("div", [
+      "car__update",
+    ]);
+    const inputUpdateCar = customCreateNewElement<HTMLInputElement>(
+      "input",
+      ["car__input", "input__update", "disable"],
+      undefined,
+      {
+        type: "test",
+        autofocus: "true",
+        autocomplete: "on",
+        placeholder: "update auto",
+        disabled: "true",
+      }
+    );
+    const inputUpdateColor = customCreateNewElement<HTMLInputElement>(
+      "input",
+      ["car__color", "input__color-update", "disable"],
+      undefined,
+      {
+        type: "color",
+        value: "#2819f5",
+        disabled: "true",
+      }
+    );
+    const btnUpdateCar = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "btn__car", "car__updates"],
+      "UPDATE",
+      { "data-name": "update" }
     );
 
-    this.garageControl.append(this.btnRace, this.btnReset, this.btnGenerate);
+    customInsertChilds(containerUpdateCar, [
+      inputUpdateCar,
+      inputUpdateColor,
+      btnUpdateCar,
+    ]);
+    return containerUpdateCar;
+  }
 
-    this.carControl.append(
-      this.createCarNew,
-      this.carUpdate,
-      this.garageControl,
-      this.winCar()
+  private createControlsAllCar(): HTMLDivElement {
+    const garageControl = customCreateNewElement<HTMLDivElement>("div", [
+      "garage__control",
+    ]);
+
+    const btnRace = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "control__race"],
+      "RACE",
+      { "data-name": "race" }
     );
+    const btnReset = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "control__reset"],
+      "RESET",
+      { "data-name": "reset" }
+    );
+    const btnGenerate = customCreateNewElement<HTMLButtonElement>(
+      "button",
+      ["btn", "btn__car", "contorl__generate"],
+      "GENERATE CARS",
+      { "data-name": "generate" }
+    );
+
+    customInsertChilds(garageControl, [btnRace, btnReset, btnGenerate]);
+    return garageControl;
   }
 
   public drawCars(cars: DataServer[], newCar?: boolean): void {
@@ -320,36 +350,11 @@ export class Garage {
     this.addListenerCars(true);
   }
 
-  public drawTotalCars(
-    method: string,
-    numCars?: string,
-    random?: boolean
-  ): void {
+  public drawTotalCars(actionToGarage: StateGarage): void {
     const totalCars = document.querySelector(".total__cars") as HTMLSpanElement;
-
-    let chooseNum: number;
-
-    switch (method) {
-      case MethodEnum.get:
-        totalCars.innerText = `${numCars})`;
-        break;
-
-      case MethodEnum.post:
-        random ? (chooseNum = 100) : (chooseNum = 1);
-        totalCars.innerText = `${(
-          parseInt(totalCars.innerText) + chooseNum
-        ).toString()})`;
-        break;
-
-      case MethodEnum.delete:
-        totalCars.innerText = `${(
-          parseInt(totalCars.innerText) - 1
-        ).toString()})`;
-        break;
-    }
-    const allCar = parseInt(totalCars.innerText);
-
-    this.paginationBtns.controlPaginationBtn(allCar, this.curPage);
+    this.allCarToGarage = actionToGarage.count(this.allCarToGarage);
+    totalCars.innerText = `${this.allCarToGarage})`;
+    this.paginationBtns.controlPaginationBtn(this.allCarToGarage, this.curPage);
   }
 
   public removeSelectCar(id: string): void {
@@ -378,16 +383,10 @@ export class Garage {
     }
   }
 
-  private addListeners(): void {
-    this.carControl.addEventListener("click", (e: Event) => {
-      const btn = (e.target as HTMLButtonElement).dataset.name as string;
-      this.controlGarage(btn);
-    });
-
-    this.btnPages.addEventListener("click", (e) => {
-      const btn = (e.target as HTMLButtonElement).dataset.name as string;
-      if (btn === UrlPage.winners) this.winners.createPageWinners();
-    });
+  private addListeners(e: Event): void {
+    const btn = (e.target as HTMLButtonElement).dataset.name as string;
+    if (btn === UrlPage.winners) this.winners.createPageWinners();
+    this.controlGarage(btn);
   }
 
   private enableUpdate(): void {
@@ -447,7 +446,7 @@ export class Garage {
         response = (await this.controller.createNewCar()) as Response;
         data = (await response.json()) as DataServer;
         this.drawNewCar(data);
-        this.drawTotalCars("POST");
+        this.drawTotalCars(new AddCar());
         this.cleanInputField(btn);
         break;
 
@@ -487,7 +486,7 @@ export class Garage {
             this.generateCars.generate()
           )
         )) as Response[];
-        this.drawTotalCars("POST", "", true);
+        this.drawTotalCars(new RandomCar());
 
         break;
     }
@@ -502,7 +501,7 @@ export class Garage {
         await this.controller.removeSelectCar(UrlPage.garage);
         await this.controller.removeSelectCar(UrlPage.winners);
         this.removeSelectCar(this.controller.selectCar);
-        this.drawTotalCars("DELETE");
+        this.drawTotalCars(new RemoveCar());
         break;
 
       case ControlCarEnum.launch:

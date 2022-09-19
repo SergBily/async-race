@@ -37,8 +37,13 @@ export class App {
 
     this.garage.drawCars(data);
     this.garage.createPageGarage();
-    this.garage.drawTotalCars("GET", totalCars);
+    this.garage.allCarToGarage = +totalCars;
     this.pagination.drawNumPage(numPage, this.garage);
+
+    const totalCarsToGarage = document.querySelector(
+      ".total__cars"
+    ) as HTMLSpanElement;
+    totalCarsToGarage.innerText = `${totalCars})`;
   }
 
   private startWinnersPage() {

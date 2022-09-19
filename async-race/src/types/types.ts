@@ -1,10 +1,7 @@
+import { AddCar, RandomCar, RemoveCar } from "../utils/StateGarage";
 import { Garage } from "../components/view/garage/garage";
 import { Winners } from "../components/view/winners/winners";
 import { DataServer, DataServerWins } from "./interface";
-
-export type Headers = {
-  [index: string]: string;
-};
 
 export type ResponseHeader = string | null;
 
@@ -32,3 +29,5 @@ export type DataServerT = DataServer | EngineData[];
 export type CurrentPage = Winners | Garage;
 
 export type DataServerBothPage = DataServer[] & DataServerWins[];
+
+export type StateGarage = AddCar | RemoveCar | RandomCar;

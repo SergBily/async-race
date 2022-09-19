@@ -70,6 +70,8 @@ export class Pagination {
   public addListeners(page: CurrentPage): void {
     this.pagination.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).dataset.name as string;
+      console.log(btn);
+
       this.switchOtherPage(btn, page);
     });
   }

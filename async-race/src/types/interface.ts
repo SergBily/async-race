@@ -1,8 +1,6 @@
-import { Headers } from "./types";
-
 export interface QueryOptions {
   method: string;
-  headers?: Headers;
+  headers?: Record<string, string>;
   body?: string;
 }
 
