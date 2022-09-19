@@ -1,0 +1,360 @@
+@import './~normalize.css';
+
+
+@font-face {
+  font-family: "Mouse Memoirs";
+  src: url('./assets/fonts/MouseMemoirs-Regular.ttf') format("ttf");
+  src: url('./assets/fonts/MouseMemoirs-Regular.woff') format("woff");
+  src: url('./assets/fonts/MouseMemoirs-Regular.otf') format("otf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.body {
+  width: 100%;
+  height: 100%;
+  background: url("./assets/img/garage.jpg") no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.wrapper {
+  width: inherit;
+  height: auto;
+  padding: 20px;
+}
+
+.title__page {
+  margin: 0 auto 20px auto;
+  font-family: 'Mouse Memoirs', sans-serif;
+  color: rgba(255, 0, 0, 0.9);
+  text-align: center;
+  letter-spacing: 5px; 
+  text-shadow:  3px 3px 5px red;
+}
+
+.btn__pages {
+  width: 350px;
+  height: auto;
+  margin-left: 50px;
+}
+
+.btn {
+  width: 140px;
+  height: 35px;
+  padding-top: 4px;
+  border: 0;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  font-family: 'Mouse Memoirs', sans-serif;
+  text-align: center;
+}
+
+.btn__garage {
+  margin-right: 20px;
+}
+
+.btn__garage,
+.btn__winners {
+  width: 150px;
+  height: 40px;
+  background: linear-gradient(45deg, rgb(0, 0, 255), rgba(255, 0, 0, 0.7) 50%, rgb(0, 0, 255));
+  color: rgb(192, 192, 192);
+  letter-spacing: 1px;
+}
+
+.btn__garage:active,
+.btn__winners:active,
+.btn__car:active,
+.control__race:active,
+.control__reset:active {
+  transform: translate(5px, 5px);
+  -webkit-transform: translate(5px, 5px);
+  -moz-transform: translate(5px, 5px);
+  -ms-transform: translate(5px, 5px);
+  -o-transform: translate(5px, 5px);
+  transition: all 0.1s ease-in-out;
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -ms-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+}
+
+.btn__garage:hover,
+.btn__winners:hover,
+.btn__car:hover  {
+  box-shadow: 0 0 20px rgb(0, 0, 255);
+  border-left: 2px solid red;
+  border-right: 2px solid red;
+}
+
+.car__control {
+  height: 150px;
+  width: 500px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.auto__control {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.car__new,
+.car__update,
+.garage__control {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.garage__control {
+  gap: 20px;
+}
+
+.btn__car {
+  background: linear-gradient(45deg, blue ,red,black);
+  color: rgb(192, 192, 192);
+}
+
+.car__input {
+  width: 200px;
+  height: 30px;
+  padding-left: 10px;
+  border: 0.5px solid rgb(255, 0, 0);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.7);
+  color:  rgb(0, 0, 0);
+  letter-spacing: 1px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.control__race,
+.control__reset {
+  background: linear-gradient(45deg, rgb(255, 0, 0), rgba(0, 0, 255, 0.7) 50%, rgb(255, 0, 0));
+  color: rgb(192, 192, 192);
+  letter-spacing: 1px;
+}
+
+.pagination__prev,
+.pagination__next  {
+  background-color: silver;
+  color: black;
+}
+
+.pagination__activ {
+  background: linear-gradient(45deg, rgb(255, 0, 0), rgba(0, 0, 255, 0.7) 50%, rgb(255, 0, 0));
+  color: rgb(192, 192, 192);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.control__race:hover,
+.control__reset:hover {
+  box-shadow: 0 0 20px rgb(255, 0, 0);
+  border-left: 2px solid rgb(0, 0, 255);
+  border-right: 2px solid rgb(0, 0, 255);
+  cursor: pointer;
+}
+
+::placeholder {
+  color: rgba(0, 0, 0, 0.7)
+}
+
+.title__race {
+  margin-top: 40px;
+  font-size: 2rem;
+  color: rgb(23, 27, 27);
+}
+
+.race__container {
+  width: 100%;
+  height: auto;
+  margin-top: 20px;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.car__control {
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 20px;
+}
+
+.auto__name {
+  color: rgb(245, 222, 179);
+  font-size: 1.2rem;
+}
+
+.race__control {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 3px dashed rgb(247, 200, 200);
+}
+
+.container__img {
+  width: 100%;
+  height: 0;
+  position: absolute;
+  top: 50px;
+  z-index: 1;
+  /* left: 190px; */
+}
+
+.car__img {
+  margin-left: 190px;
+}
+
+.car__flag{
+  margin: 0 100px 0 auto;
+}
+
+.btn__launch,
+.btn__stop {
+  width: 80px;
+  height: 25px;
+}
+
+.btn__launch,
+.btn__stop {
+  align-self: flex-start;
+  margin-top: 10px;
+  background-color: rgba(0, 0, 255, 0.4);
+  color: rgb(192, 192, 192);
+  cursor: pointer;
+}
+
+.btn__select,
+.btn__remove {
+  width: 100px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.car__img {
+  fill: green;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 300px;
+  height: auto;
+  margin-top: 40px;
+}
+
+.disable {
+  background-color: rgba(0, 0, 0, 0.5);;
+}
+
+.disable-start-stop {
+  background-color: silver;
+  color: black;
+  cursor: default;
+}
+
+.message-win {
+  color:green;
+  font-weight: 800;
+  font-size: 4rem;
+  position:fixed;
+  top: 43%;
+  left: 25%;
+  transform: scale(0);
+  text-shadow: 0 0 20px yellowgreen;
+  -webkit-transform: scale(0);
+  -moz-transform: scale(0);
+  -ms-transform: scale(0);
+  -o-transform: scale(0);
+  transition: all 0.5s, ease-in-out;
+  -webkit-transition: all 0.5s, ease-in-out;
+  -moz-transition: all 0.5s, ease-in-out;
+  -ms-transition: all 0.5s, ease-in-out;
+  -o-transition: all 0.5s, ease-in-out;
+}
+
+.message-win-open {
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+}
+
+/* start page winner */
+
+.table {
+  width: 500px;
+  height: auto;
+  margin-top: 30px;
+  border-collapse: separate;
+}
+
+
+.table__caption{
+  background: linear-gradient(45deg, rgb(0, 0, 255), rgba(255, 0, 0, 0.7) 50%, rgb(0, 0, 255));
+  height: 30px;
+  font-size: 1.5rem;
+  text-align: left;
+}
+
+.table__body {
+  background-color: rgba(193, 243, 164, 0.6);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.caption {
+  position: relative;
+  color: wheat
+}
+
+.cell {
+  color: blue;
+}
+
+.wins-arrow {
+  position: absolute;
+  top: 0;
+  left: 53px;
+}
+
+.best-arrow {
+  position: absolute;
+  top: 0;
+  left: 143px;
+}
+
+.container__wins {
+  width: 500px;
+  height: auto;
+}
+
+
+
+
+
